@@ -1,0 +1,71 @@
+{
+  "version": 1,
+  "titre": "Demande d'accompagnement (test)",
+  "introduction": "Ce questionnaire de démonstration montre la logique conditionnelle : certaines questions et une étape n'apparaissent que selon vos réponses.\n\n**Questionnaire de test : ne saisissez pas de données réelles.**",
+  "entete": {
+    "marque": "Académie\nde Reims",
+    "service": "Lab 17 bis",
+    "sousTitre": "Laboratoire d'innovation publique",
+    "piedDePage": "Prototype du Lab 17 bis, laboratoire d'innovation publique de l'académie de Reims."
+  },
+  "envoi": {
+    "bouton": "Envoyer ma demande",
+    "titreConfirmation": "Votre demande a bien été envoyée",
+    "messageConfirmation": "Merci. L'équipe du Lab 17 bis vous recontacte sous 10 jours ouvrés.",
+    "autreReponse": true
+  },
+  "mentionObligatoire": "asterisque",
+  "mentionsDonnees": "Questionnaire de test. Les réponses sont enregistrées dans un document Grist de l'académie et supprimées à la fin des essais.",
+  "etapes": [
+    {
+      "id": "e_vous",
+      "titre": "Vous",
+      "description": "",
+      "condition": null,
+      "elements": [
+        { "id": "q_nom", "genre": "question", "colonne": "Nom", "type": "Text", "libelle": "Nom et prénom", "aide": "", "obligatoire": true, "affichage": "court" },
+        { "id": "q_courriel", "genre": "question", "colonne": "Courriel", "type": "Text", "libelle": "Adresse électronique", "aide": "Format attendu : nom@domaine.fr", "obligatoire": true, "affichage": "courriel" },
+        { "id": "q_service", "genre": "question", "colonne": "Service", "type": "Text", "libelle": "Service ou établissement", "aide": "Par exemple : DSDEN de la Marne, lycée Jean-Jaurès", "obligatoire": true, "affichage": "court" }
+      ]
+    },
+    {
+      "id": "e_demande",
+      "titre": "Votre demande",
+      "description": "",
+      "condition": null,
+      "elements": [
+        { "id": "q_type", "genre": "question", "colonne": "Type_demande", "type": "Choice", "libelle": "Quel type d'accompagnement souhaitez-vous ?", "aide": "", "obligatoire": true, "affichage": "radio", "choix": ["Facilitation d'atelier", "Accompagnement de projet", "Formation ou acculturation", "Autre"] },
+        { "id": "q_autre", "genre": "question", "colonne": "Precision_autre", "type": "Text", "libelle": "Précisez votre demande", "aide": "", "obligatoire": true, "affichage": "court",
+          "condition": { "mode": "toutes", "regles": [ { "element": "q_type", "operateur": "parmi", "valeur": ["Autre"] } ] } },
+        { "id": "t_facilitation", "genre": "texte", "style": "information", "titre": "", "texte": "Une étape supplémentaire vous demandera la date et le format de l'atelier.",
+          "condition": { "mode": "toutes", "regles": [ { "element": "q_type", "operateur": "parmi", "valeur": ["Facilitation d'atelier"] } ] } },
+        { "id": "q_deja", "genre": "question", "colonne": "Deja_accompagne", "type": "Bool", "libelle": "Avez-vous déjà été accompagné par le Lab 17 bis ?", "aide": "", "obligatoire": true, "affichage": "ouinon" },
+        { "id": "q_projet", "genre": "question", "colonne": "Projet_concerne", "type": "Text", "libelle": "Pour quel projet ?", "aide": "", "obligatoire": false, "affichage": "court",
+          "condition": { "mode": "toutes", "regles": [ { "element": "q_deja", "operateur": "vrai", "valeur": null } ] } },
+        { "id": "q_besoin", "genre": "question", "colonne": "Besoin", "type": "Text", "libelle": "Décrivez votre besoin", "aide": "Contexte, objectif, personnes concernées.", "obligatoire": true, "affichage": "long", "longueurMax": 2000 }
+      ]
+    },
+    {
+      "id": "e_atelier",
+      "titre": "L'atelier",
+      "description": "Ces informations nous aident à préparer la facilitation.",
+      "condition": { "mode": "toutes", "regles": [ { "element": "q_type", "operateur": "parmi", "valeur": ["Facilitation d'atelier"] } ] },
+      "elements": [
+        { "id": "q_date", "genre": "question", "colonne": "Date_souhaitee", "type": "Date", "libelle": "Date souhaitée", "aide": "", "obligatoire": true, "affichage": "date" },
+        { "id": "q_nb", "genre": "question", "colonne": "Nb_participants", "type": "Int", "libelle": "Nombre de participants prévus", "aide": "Entre 2 et 200.", "obligatoire": true, "affichage": "nombre", "min": 2, "max": 200 },
+        { "id": "q_modalites", "genre": "question", "colonne": "Modalites", "type": "ChoiceList", "libelle": "Modalités possibles", "aide": "Plusieurs réponses possibles.", "obligatoire": true, "affichage": "cases", "choix": ["Présentiel", "Distanciel"] },
+        { "id": "t_grand_groupe", "genre": "texte", "style": "encadre", "titre": "Grand groupe", "texte": "Au-delà de 30 participants, prévoyez au moins deux facilitateurs. Nous en parlerons ensemble.",
+          "condition": { "mode": "toutes", "regles": [ { "element": "q_nb", "operateur": "sup", "valeur": "30" } ] } }
+      ]
+    },
+    {
+      "id": "e_validation",
+      "titre": "Validation",
+      "description": "",
+      "condition": null,
+      "elements": [
+        { "id": "q_accord", "genre": "question", "colonne": "Accord", "type": "Bool", "libelle": "J'accepte que mes réponses soient utilisées pour traiter ma demande.", "aide": "", "obligatoire": true, "affichage": "case" }
+      ]
+    }
+  ]
+}
