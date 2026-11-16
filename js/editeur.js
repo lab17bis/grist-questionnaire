@@ -299,7 +299,7 @@
       html += "<optgroup label=\"Nouvelle question (crée une colonne)\">" + TYPES_NOUVELLE_QUESTION.map(function (t) {
         return "<option value=\"new:" + t[0] + "\">" + esc(t[1]) + "</option>";
       }).join("") + "</optgroup></select>" +
-        "<button type=\"button\" class=\"fr-btn fr-btn--sm fr-btn--secondary fr-icon-text fr-btn--icon-left\" data-action=\"ajouter-texte\" data-etape=\"" +
+        "<button type=\"button\" class=\"fr-btn fr-btn--sm fr-btn--secondary fr-icon-add-line fr-btn--icon-left\" data-action=\"ajouter-texte\" data-etape=\"" +
         etape.id + "\">Texte</button></div>";
       html += "</div>";
     });
