@@ -64,3 +64,5 @@
   color: var(--text-mention-grey);
   margin: 0;
 }
+
+.pd-pied-sans-marque .fr-footer__content { flex-basis: 100%; max-width: 100%; margin-left: 0; }

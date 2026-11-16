@@ -163,17 +163,18 @@
         el("span", { class: "fr-footer__bottom-link", text: "Accessibilité : " + p.accessibilite })
       ]));
     }
+    var aMarque = marque || logos.length;
+    var corps = (aMarque || p.texte) ? el("div", { class: "fr-footer__body" + (aMarque ? "" : " pd-pied-sans-marque") }, [
+      aMarque ? el("div", { class: "fr-footer__brand pd-pied-marques" }, [marque].concat(logos)) : null,
+      p.texte ? el("div", { class: "fr-footer__content" }, [el("p", { class: "fr-footer__content-desc" }, lignes(p.texte))]) : null
+    ]) : null;
+    var bas = (liens.length || p.mention) ? el("div", { class: "fr-footer__bottom" }, [
+      el("ul", { class: "fr-footer__bottom-list" }, liens),
+      p.mention ? el("div", { class: "fr-footer__bottom-copy" }, [el("p", {}, lignes(p.mention))]) : null
+    ]) : null;
+    if (!corps && !bas) { return el("div", { class: "pd-pied", id: "pied" }); }
     return el("footer", { class: "fr-footer pd-pied", role: "contentinfo", id: "pied" }, [
-      el("div", { class: "fr-container" }, [
-        el("div", { class: "fr-footer__body" }, [
-          el("div", { class: "fr-footer__brand pd-pied-marques" }, [marque].concat(logos)),
-          p.texte ? el("div", { class: "fr-footer__content" }, [el("p", { class: "fr-footer__content-desc" }, lignes(p.texte))]) : null
-        ]),
-        el("div", { class: "fr-footer__bottom" }, [
-          el("ul", { class: "fr-footer__bottom-list" }, liens),
-          p.mention ? el("div", { class: "fr-footer__bottom-copy" }, [el("p", {}, lignes(p.mention))]) : null
-        ])
-      ])
+      el("div", { class: "fr-container" }, [corps, bas])
     ]);
   }
 
