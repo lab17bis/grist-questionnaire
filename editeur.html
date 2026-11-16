@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="fr" data-fr-scheme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Éditeur de questionnaire DSFR – widget Grist</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.15.4/dist/dsfr.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.15.4/dist/utility/icons/icons.min.css">
+  <link rel="stylesheet" href="css/commun.css">
+  <link rel="stylesheet" href="css/editeur.css">
+  <script src="https://docs.getgrist.com/grist-plugin-api.js"></script>
+</head>
+<body>
+  <div class="ed-barre">
+    <div class="ed-barre__titre">
+      <p class="ed-nom">Questionnaire DSFR</p>
+      <p class="fr-badge fr-badge--sm" id="etat">Chargement…</p>
+    </div>
+    <fieldset class="fr-segmented fr-segmented--sm" id="onglets">
+      <legend class="fr-segmented__legend fr-sr-only">Vue de l'éditeur</legend>
+      <div class="fr-segmented__elements">
+        <div class="fr-segmented__element">
+          <input value="questions" checked type="radio" id="onglet-questions" name="onglet">
+          <label class="fr-label" for="onglet-questions">Questions</label>
+        </div>
+        <div class="fr-segmented__element">
+          <input value="textes" type="radio" id="onglet-textes" name="onglet">
+          <label class="fr-label" for="onglet-textes">Textes</label>
+        </div>
+        <div class="fr-segmented__element">
+          <input value="apercu" type="radio" id="onglet-apercu" name="onglet">
+          <label class="fr-label" for="onglet-apercu">Aperçu</label>
+        </div>
+        <div class="fr-segmented__element">
+          <input value="publication" type="radio" id="onglet-publication" name="onglet">
+          <label class="fr-label" for="onglet-publication">Publication</label>
+        </div>
+      </div>
+    </fieldset>
+    <button type="button" class="fr-btn fr-btn--sm fr-icon-save-line fr-btn--icon-left" id="enregistrer">Enregistrer</button>
+  </div>
+  <div id="message" class="ed-message" aria-live="polite"></div>
+  <main id="vue" class="ed-vue"></main>
+
+  <script src="js/moteur.js"></script>
+  <script src="js/rendu.js"></script>
+  <script src="js/editeur.js"></script>
+</body>
+</html>

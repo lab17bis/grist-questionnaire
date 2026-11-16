@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="fr" data-fr-scheme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Questionnaires DSFR pour Grist – Lab 17 bis</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.15.4/dist/dsfr.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.15.4/dist/utility/icons/icons.min.css">
+</head>
+<body>
+  <header role="banner" class="fr-header">
+    <div class="fr-header__body">
+      <div class="fr-container">
+        <div class="fr-header__body-row">
+          <div class="fr-header__brand">
+            <div class="fr-header__brand-top">
+              <div class="fr-header__logo"><p class="fr-logo">Académie<br>de Reims</p></div>
+            </div>
+            <div class="fr-header__service">
+              <p class="fr-header__service-title">Questionnaires DSFR pour Grist</p>
+              <p class="fr-header__service-tagline">Lab 17 bis · Prototype</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main id="contenu" class="fr-container fr-my-6w">
+    <div class="fr-grid-row">
+      <div class="fr-col-12 fr-col-lg-8">
+        <h1>Des questionnaires au DSFR, avec logique conditionnelle, enregistrés dans Grist</h1>
+        <p class="fr-text--lead">Deux pages : un éditeur à placer dans un document Grist, et une page publique qui affiche le questionnaire aux couleurs du Système de design de l'État.</p>
+
+        <h2>Ce que ça apporte par rapport au formulaire natif de Grist</h2>
+        <ul>
+          <li>Questions, étapes et textes affichés seulement sous condition (ET / OU, conditions en cascade).</li>
+          <li>Questionnaire en plusieurs étapes avec l'indicateur d'étapes du DSFR.</li>
+          <li>Composants, messages d'erreur et mise en page du DSFR.</li>
+          <li>Les réponses arrivent dans la table Grist, comme avec le formulaire natif.</li>
+        </ul>
+
+        <h2>Mise en place</h2>
+        <ol>
+          <li>Dans le document Grist, ajoutez une vue <strong>Personnalisée</strong> sur la table des réponses, avec l'URL :
+            <code id="url-editeur">editeur.html</code>, et accordez l'<strong>accès complet</strong> au document.</li>
+          <li>Construisez le questionnaire dans l'éditeur, puis cliquez sur <strong>Enregistrer</strong>.</li>
+          <li>Ajoutez une page <strong>Formulaire</strong> Grist sur la même table et <strong>publiez-la</strong> (une seule fois).</li>
+          <li>Dans l'onglet <strong>Publication</strong> de l'éditeur, collez le lien du formulaire publié : l'éditeur donne le lien DSFR à diffuser.</li>
+        </ol>
+
+        <h2>Ce qu'il faut savoir</h2>
+        <ul>
+          <li>La configuration du questionnaire est enregistrée dans la description de la colonne <code>Config_questionnaire</code> de la table. Ne supprimez pas cette colonne.</li>
+          <li>Ce dépôt ne contient que du code : aucune donnée, aucune réponse.</li>
+          <li>La logique conditionnelle s'applique dans le navigateur. Elle guide la personne qui répond ; elle ne constitue pas un contrôle de sécurité côté serveur.</li>
+        </ul>
+      </div>
+    </div>
+  </main>
+
+  <footer class="fr-footer" role="contentinfo">
+    <div class="fr-container">
+      <div class="fr-footer__body">
+        <div class="fr-footer__brand"><p class="fr-logo">Académie<br>de Reims</p></div>
+        <div class="fr-footer__content">
+          <p class="fr-footer__content-desc">Prototype du Lab 17 bis, laboratoire d'innovation publique de l'académie de Reims. Code source : <a href="https://github.com/lab17bis/questionnaires" target="_blank" rel="noopener" title="Dépôt GitHub - nouvelle fenêtre">github.com/lab17bis/questionnaires</a>.</p>
+        </div>
+      </div>
+      <div class="fr-footer__bottom">
+        <ul class="fr-footer__bottom-list">
+          <li class="fr-footer__bottom-item"><span class="fr-footer__bottom-link">Accessibilité : non conforme</span></li>
+        </ul>
+      </div>
+    </div>
+  </footer>
+  <script>
+    document.getElementById("url-editeur").textContent = new URL("editeur.html", location.href).href;
+  </script>
+</body>
+</html>

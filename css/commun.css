@@ -1,0 +1,59 @@
+/* Compléments au DSFR, communs à la page publique et à l'éditeur. */
+
+.qd-obligatoire {
+  color: var(--text-default-error);
+}
+
+/* Champ piège anti-robots : invisible et hors du parcours clavier. */
+.qd-piege {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+.qd-element[hidden],
+.qd-etape[hidden] {
+  display: none !important;
+}
+
+.qd-element + .qd-element {
+  margin-top: 1.5rem;
+}
+
+.qd-etape-description {
+  margin-bottom: 1.5rem;
+}
+
+.qd-intertitre {
+  margin-top: 1rem;
+  margin-bottom: 0;
+}
+
+.qd-actions {
+  margin-top: 2.5rem;
+}
+
+.qd-mentions-donnees {
+  margin-top: 2rem;
+  color: var(--text-mention-grey);
+}
+
+.qd-alerte:focus {
+  outline: none;
+}
+
+.qd-apercu-donnees {
+  white-space: pre-wrap;
+  font-size: 0.8rem;
+  margin: 0.5rem 0 0;
+}
+
+.qd-titre-etape-unique {
+  margin-bottom: 1.5rem;
+}
+
+.qd-intro p:last-child {
+  margin-bottom: 1rem;
+}

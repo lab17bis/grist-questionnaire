@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="fr" data-fr-scheme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="robots" content="noindex">
+  <title>Questionnaire</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.15.4/dist/dsfr.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.15.4/dist/utility/icons/icons.min.css">
+  <link rel="stylesheet" href="css/commun.css">
+</head>
+<body>
+  <div class="fr-skiplinks" id="liens-evitement">
+    <nav class="fr-container" role="navigation" aria-label="Accès rapide">
+      <ul class="fr-skiplinks__list">
+        <li><a class="fr-link" href="#contenu">Contenu</a></li>
+      </ul>
+    </nav>
+  </div>
+
+  <header role="banner" class="fr-header" id="entete" hidden>
+    <div class="fr-header__body">
+      <div class="fr-container">
+        <div class="fr-header__body-row">
+          <div class="fr-header__brand">
+            <div class="fr-header__brand-top">
+              <div class="fr-header__logo">
+                <p class="fr-logo" id="entete-marque">République<br>française</p>
+              </div>
+            </div>
+            <div class="fr-header__service" id="entete-service" hidden>
+              <p class="fr-header__service-title" id="entete-service-titre"></p>
+              <p class="fr-header__service-tagline" id="entete-service-soustitre"></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main id="contenu" class="fr-container fr-my-6w" tabindex="-1">
+    <div class="fr-grid-row fr-grid-row--center">
+      <div class="fr-col-12 fr-col-md-10 fr-col-lg-8" id="questionnaire">
+        <p id="chargement">Chargement du questionnaire…</p>
+      </div>
+    </div>
+  </main>
+
+  <footer class="fr-footer" role="contentinfo" id="pied" hidden>
+    <div class="fr-container">
+      <div class="fr-footer__body">
+        <div class="fr-footer__brand">
+          <p class="fr-logo" id="pied-marque">République<br>française</p>
+        </div>
+        <div class="fr-footer__content">
+          <p class="fr-footer__content-desc" id="pied-texte"></p>
+        </div>
+      </div>
+      <div class="fr-footer__bottom">
+        <ul class="fr-footer__bottom-list">
+          <li class="fr-footer__bottom-item">
+            <span class="fr-footer__bottom-link">Accessibilité : non conforme</span>
+          </li>
+        </ul>
+        <div class="fr-footer__bottom-copy">
+          <p>Questionnaire construit avec le Système de design de l'État. Les réponses sont enregistrées dans Grist.</p>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/moteur.js"></script>
+  <script src="js/rendu.js"></script>
+  <script>
+  (function () {
+    "use strict";
+    var M = window.QuestionnaireMoteur;
+    var R = window.QuestionnaireRendu;
+    var zone = document.getElementById("questionnaire");
+    var params = new URLSearchParams(location.search);
+    var integre = params.get("integre") === "1";
+
+    function erreur(titre, texte) {
+      zone.innerHTML = "";
+      zone.appendChild(R.h("div", { class: "fr-alert fr-alert--error", role: "alert" }, [
+        R.h("h1", { class: "fr-alert__title", text: titre }),
+        R.h("p", { text: texte })
+      ]));
+      document.title = titre;
+    }
+
+    function multiligne(noeud, texte) {
+      noeud.innerHTML = "";
+      String(texte || "").split("\n").forEach(function (ligne, i) {
+        if (i) { noeud.appendChild(document.createElement("br")); }
+        noeud.appendChild(document.createTextNode(ligne));
+      });
+    }
+
+    function appliquerEntete(config) {
+      if (integre) { return; }
+      var e = config.entete || {};
+      document.getElementById("entete").hidden = false;
+      document.getElementById("pied").hidden = false;
+      if (e.marque) {
+        multiligne(document.getElementById("entete-marque"), e.marque);
+        multiligne(document.getElementById("pied-marque"), e.marque);
+      }
+      if (e.service) {
+        document.getElementById("entete-service").hidden = false;
+        document.getElementById("entete-service-titre").textContent = e.service;
+        document.getElementById("entete-service-soustitre").textContent = e.sousTitre || "";
+      }
+      document.getElementById("pied-texte").textContent = e.piedDePage || "";
+    }
+
+    // Configuration par défaut si l'éditeur n'a pas encore été utilisé :
+    // on reprend les questions du formulaire Grist, dans leur ordre.
+    function configParDefaut(form) {
+      var ordre = [];
+      (function parcourir(n) {
+        if (!n) { return; }
+        if (n.type === "Field" && n.leaf) { ordre.push(n.leaf); }
+        (n.children || []).forEach(parcourir);
+      })(JSON.parse(form.formLayoutSpec || "{}"));
+      var elements = ordre.map(function (idChamp) { return form.formFieldsById[idChamp]; })
+        .filter(function (f) { return f && !f.options.formIsHidden && f.colId !== M.NOM_COLONNE_CONFIG; })
+        .map(function (f) {
+          return {
+            id: "q" + f.colId, genre: "question", colonne: f.colId, libelle: f.question,
+            aide: f.description || "", obligatoire: !!f.options.formRequired,
+            affichage: f.options.formTextFormat === "multiline" ? "long" :
+              (f.options.formSelectFormat === "radio" ? "radio" : (f.type === "Choice" ? "liste" : undefined))
+          };
+        });
+      return { version: 1, titre: form.formTitle, etapes: [{ id: "e1", titre: "", elements: elements }] };
+    }
+
+    async function lireJson(reponse) {
+      var texte = await reponse.text();
+      var json = null;
+      try { json = JSON.parse(texte); } catch (e) { /* réponse non JSON */ }
+      if (!reponse.ok) {
+        var msg = json && (json.error || json.details && json.details.userError) || ("Erreur " + reponse.status);
+        throw new Error(msg);
+      }
+      return json;
+    }
+
+    async function demarrer() {
+      var lien = params.get("grist");
+      var cible = lien && M.analyserLienGrist(lien);
+      if (!cible) {
+        erreur("Lien incomplet", "Ce lien ne désigne aucun questionnaire. Demandez le lien complet à la personne qui vous l'a transmis.");
+        return;
+      }
+
+      var form;
+      try {
+        form = await lireJson(await fetch(cible.base + "/forms/" + cible.section));
+      } catch (e) {
+        erreur("Questionnaire indisponible", "Ce questionnaire n'est pas ou plus publié. (" + e.message + ")");
+        return;
+      }
+
+      var champs = {};
+      var config = null;
+      Object.keys(form.formFieldsById).forEach(function (k) {
+        var f = form.formFieldsById[k];
+        if (f.colId === M.NOM_COLONNE_CONFIG) {
+          try { config = JSON.parse(f.description || "null"); } catch (e) { config = null; }
+          return;
+        }
+        champs[f.colId] = {
+          type: f.type,
+          choix: f.options && f.options.choices || [],
+          refValues: f.refValues || []
+        };
+      });
+      if (!config || !config.etapes) { config = configParDefaut(form); }
+
+      appliquerEntete(config);
+      document.title = config.titre || form.formTitle || "Questionnaire";
+
+      R.monter(zone, {
+        config: config,
+        champs: champs,
+        titrePage: true,
+        envoyer: async function (valeurs, fichiers) {
+          var entetes = { "X-Requested-With": "XMLHttpRequest" };
+          var colonnes = Object.keys(fichiers);
+          for (var i = 0; i < colonnes.length; i++) {
+            var donnees = new FormData();
+            fichiers[colonnes[i]].forEach(function (f) { donnees.append("upload", f, f.name); });
+            var ids = await lireJson(await fetch(cible.base + "/attachments", {
+              method: "POST", headers: entetes, body: donnees
+            }));
+            valeurs[colonnes[i]] = ["L"].concat(ids);
+          }
+          await lireJson(await fetch(cible.base + "/tables/" + encodeURIComponent(form.formTableId) + "/records", {
+            method: "POST",
+            headers: Object.assign({ "Content-Type": "application/json" }, entetes),
+            body: JSON.stringify({ records: [{ fields: valeurs }] })
+          }));
+        }
+      });
+    }
+
+    demarrer();
+  })();
+  </script>
+</body>
+</html>
