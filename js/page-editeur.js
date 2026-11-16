@@ -79,7 +79,7 @@
       h += "<h3 class=\"fr-h6\">En-tête</h3>";
       h += champ(id + "-marque", "Bloc-marque", page.marque || "", {
         chemin: "marque", multiligne: true,
-        aide: "Une ligne par ligne, par exemple « Académie » puis « de Reims ». Laissez vide pour ne pas afficher de bloc-marque."
+        aide: "Une ligne par ligne, par exemple « Ministère » puis « de l’Exemple ». Laissez vide pour ne pas afficher de bloc-marque."
       });
       h += image(id + "-logo", "Logo (à côté du bloc-marque)", page.logo, "logo");
       h += champ(id + "-titre", "Titre du site ou du service", page.titre || "", { chemin: "titre" });
