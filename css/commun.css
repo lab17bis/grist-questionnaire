@@ -14,7 +14,8 @@
 }
 
 .qd-element[hidden],
-.qd-etape[hidden] {
+.qd-etape[hidden],
+.qd-actions li[hidden] {
   display: none !important;
 }
 

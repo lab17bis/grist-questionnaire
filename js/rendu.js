@@ -438,8 +438,8 @@
       formulaire.appendChild(section);
     });
 
-    var boutonPrecedent = h("button", { type: "button", class: "fr-btn fr-btn--secondary fr-icon-arrow-left-line fr-btn--icon-left", text: "Précédent" });
-    var boutonSuivant = h("button", { type: "submit", class: "fr-btn fr-icon-arrow-right-line fr-btn--icon-right", text: "Suivant" });
+    var boutonPrecedent = h("button", { type: "button", class: "fr-btn fr-btn--secondary", text: "Précédent" });
+    var boutonSuivant = h("button", { type: "submit", class: "fr-btn", text: "Suivant" });
     var actions = h("ul", { class: "fr-btns-group fr-btns-group--inline-md fr-btns-group--right qd-actions" }, [
       h("li", {}, [boutonPrecedent]),
       h("li", {}, [boutonSuivant])
@@ -518,8 +518,7 @@
       boutonPrecedent.parentNode.hidden = index <= 0;
       var derniere = index === total - 1;
       boutonSuivant.textContent = derniere ? (config.envoi && config.envoi.bouton || "Envoyer") : "Suivant";
-      boutonSuivant.className = "fr-btn " + (derniere ? "" : "fr-icon-arrow-right-line fr-btn--icon-right");
-
+      
       if (options.titrePage && etape) {
         document.title = (total > 1 ? (etape.titre || "Étape " + (index + 1)) + " – Étape " + (index + 1) + " sur " + total + " – " : "") +
           (config.titre || "Questionnaire");
