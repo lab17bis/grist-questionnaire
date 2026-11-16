@@ -193,7 +193,7 @@
       version: M.VERSION,
       titre: E.tableId,
       introduction: "",
-      entete: { marque: "République\nfrançaise", service: "", sousTitre: "", piedDePage: "" },
+      page: { marque: "République\nfrançaise", titre: "", sousTitre: "", boutons: [], pied: { accessibilite: "non conforme" } },
       envoi: {
         bouton: "Envoyer",
         titreConfirmation: "Votre réponse a bien été envoyée",
@@ -497,7 +497,6 @@
 
   function afficherTextes() {
     var c = E.config;
-    c.entete = c.entete || {};
     c.envoi = c.envoi || {};
     var html = "<div class=\"ed-panneau ed-textes\">";
     html += "<h2 class=\"fr-h5\">Présentation du questionnaire</h2>";
@@ -507,11 +506,6 @@
       ["asterisque", "Astérisque (*) sur les champs obligatoires"],
       ["facultatif", "« Sauf mention contraire, tous les champs sont obligatoires » + (facultatif)"]
     ]);
-    html += "<h2 class=\"fr-h5 ed-section-titre\">En-tête et pied de page</h2>";
-    html += champTexte("c.entete.marque", "Bloc-marque", c.entete.marque || "", { multiligne: true, lignes: 3, aide: "Un retour à la ligne par ligne du bloc-marque, par exemple « Académie » puis « de Reims »." });
-    html += champTexte("c.entete.service", "Nom du service", c.entete.service || "", { aide: "Facultatif, par exemple « Lab 17 bis »." });
-    html += champTexte("c.entete.sousTitre", "Précision sur le service", c.entete.sousTitre || "");
-    html += champTexte("c.entete.piedDePage", "Texte du pied de page", c.entete.piedDePage || "");
     html += "<h2 class=\"fr-h5 ed-section-titre\">Envoi</h2>";
     html += champTexte("c.envoi.bouton", "Libellé du bouton d'envoi", c.envoi.bouton || "Envoyer");
     html += champTexte("c.envoi.titreConfirmation", "Titre du message de confirmation", c.envoi.titreConfirmation || "");
@@ -524,6 +518,29 @@
     });
     html += "</div>";
     $("#vue").innerHTML = html;
+  }
+
+  /* ---------- Vue « En-tête et pied » ---------- */
+
+  // Anciennes configurations : « entete » devient « page » (réglages communs aux outils).
+  function migrerPage(c) {
+    if (c.page) { return c.page; }
+    var e = c.entete || {};
+    c.page = {
+      marque: e.marque !== undefined ? e.marque : "République\nfrançaise",
+      titre: e.service || "", sousTitre: e.sousTitre || "",
+      boutons: [], pied: { texte: e.piedDePage || "", accessibilite: "non conforme" }
+    };
+    delete c.entete;
+    return c.page;
+  }
+
+  function afficherPage() {
+    var z = document.createElement("div");
+    z.className = "ed-panneau ed-textes";
+    $("#vue").innerHTML = "";
+    $("#vue").appendChild(z);
+    window.PageEditeur.monter(z, migrerPage(E.config), function () { marquerModifie(true); });
   }
 
   /* ---------- Vue « Aperçu » ---------- */
@@ -738,6 +755,7 @@
       });
 
       // 4. Écrire la configuration dans la description de la colonne technique.
+      migrerPage(E.config);
       E.config.version = M.VERSION;
       E.config.majLe = new Date().toISOString();
       if (!E.colConfig) {
@@ -1036,6 +1054,7 @@
     if (!E.config) { return; }
     if (E.vue === "questions") { afficherQuestions(); }
     else if (E.vue === "textes") { afficherTextes(); }
+    else if (E.vue === "page") { afficherPage(); }
     else if (E.vue === "apercu") { afficherApercu(); }
     else { afficherPublication(); }
   }

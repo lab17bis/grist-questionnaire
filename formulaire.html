@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.15.4/dist/dsfr.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.15.4/dist/utility/icons/icons.min.css">
   <link rel="stylesheet" href="css/commun.css?v=3">
+  <link rel="stylesheet" href="css/page.css?v=1">
 </head>
 <body>
   <div class="fr-skiplinks" id="liens-evitement">
@@ -18,25 +19,7 @@
     </nav>
   </div>
 
-  <header role="banner" class="fr-header" id="entete" hidden>
-    <div class="fr-header__body">
-      <div class="fr-container">
-        <div class="fr-header__body-row">
-          <div class="fr-header__brand">
-            <div class="fr-header__brand-top">
-              <div class="fr-header__logo">
-                <p class="fr-logo" id="entete-marque">République<br>française</p>
-              </div>
-            </div>
-            <div class="fr-header__service" id="entete-service" hidden>
-              <p class="fr-header__service-title" id="entete-service-titre"></p>
-              <p class="fr-header__service-tagline" id="entete-service-soustitre"></p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </header>
+  <div id="entete"></div>
 
   <main id="contenu" class="fr-container fr-my-6w" tabindex="-1">
     <div class="fr-grid-row fr-grid-row--center">
@@ -46,29 +29,9 @@
     </div>
   </main>
 
-  <footer class="fr-footer" role="contentinfo" id="pied" hidden>
-    <div class="fr-container">
-      <div class="fr-footer__body">
-        <div class="fr-footer__brand">
-          <p class="fr-logo" id="pied-marque">République<br>française</p>
-        </div>
-        <div class="fr-footer__content">
-          <p class="fr-footer__content-desc" id="pied-texte"></p>
-        </div>
-      </div>
-      <div class="fr-footer__bottom">
-        <ul class="fr-footer__bottom-list">
-          <li class="fr-footer__bottom-item">
-            <span class="fr-footer__bottom-link">Accessibilité : non conforme</span>
-          </li>
-        </ul>
-        <div class="fr-footer__bottom-copy">
-          <p>Questionnaire construit avec le Système de design de l'État. Les réponses sont enregistrées dans Grist.</p>
-        </div>
-      </div>
-    </div>
-  </footer>
+  <div id="pied"></div>
 
+  <script src="js/page-dsfr.js?v=1"></script>
   <script src="js/moteur.js?v=3"></script>
   <script src="js/rendu.js?v=3"></script>
   <script>
@@ -89,29 +52,21 @@
       document.title = titre;
     }
 
-    function multiligne(noeud, texte) {
-      noeud.innerHTML = "";
-      String(texte || "").split("\n").forEach(function (ligne, i) {
-        if (i) { noeud.appendChild(document.createElement("br")); }
-        noeud.appendChild(document.createTextNode(ligne));
-      });
-    }
-
     function appliquerEntete(config) {
       if (integre) { return; }
-      var e = config.entete || {};
-      document.getElementById("entete").hidden = false;
-      document.getElementById("pied").hidden = false;
-      if (e.marque) {
-        multiligne(document.getElementById("entete-marque"), e.marque);
-        multiligne(document.getElementById("pied-marque"), e.marque);
+      var page = config.page;
+      if (!page) {
+        // Anciennes configurations (réglage « entete »).
+        var e = config.entete || {};
+        page = { marque: e.marque !== undefined ? e.marque : "République\nfrançaise", titre: e.service || "", sousTitre: e.sousTitre || "",
+          pied: { texte: e.piedDePage || "", accessibilite: "non conforme" } };
       }
-      if (e.service) {
-        document.getElementById("entete-service").hidden = false;
-        document.getElementById("entete-service-titre").textContent = e.service;
-        document.getElementById("entete-service-soustitre").textContent = e.sousTitre || "";
-      }
-      document.getElementById("pied-texte").textContent = e.piedDePage || "";
+      window.PageDSFR.appliquer(page, {
+        entete: document.getElementById("entete"),
+        pied: document.getElementById("pied"),
+        accueil: location.pathname + location.search,
+        contexte: { titre: config.titre || "" }
+      });
     }
 
     // Configuration par défaut si l'éditeur n'a pas encore été utilisé :

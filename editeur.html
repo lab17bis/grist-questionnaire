@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.15.4/dist/dsfr.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.15.4/dist/utility/icons/icons.min.css">
   <link rel="stylesheet" href="css/commun.css?v=3">
+  <link rel="stylesheet" href="css/page.css?v=1">
   <link rel="stylesheet" href="css/editeur.css?v=3">
   <script src="https://docs.getgrist.com/grist-plugin-api.js"></script>
 </head>
@@ -28,6 +29,10 @@
           <label class="fr-label" for="onglet-textes">Textes</label>
         </div>
         <div class="fr-segmented__element">
+          <input value="page" type="radio" id="onglet-page" name="onglet">
+          <label class="fr-label" for="onglet-page">En-tête et pied</label>
+        </div>
+        <div class="fr-segmented__element">
           <input value="apercu" type="radio" id="onglet-apercu" name="onglet">
           <label class="fr-label" for="onglet-apercu">Aperçu</label>
         </div>
@@ -42,6 +47,8 @@
   <div id="message" class="ed-message" aria-live="polite"></div>
   <main id="vue" class="ed-vue"></main>
 
+  <script src="js/page-dsfr.js?v=1"></script>
+  <script src="js/page-editeur.js?v=1"></script>
   <script src="js/moteur.js?v=3"></script>
   <script src="js/rendu.js?v=3"></script>
   <script src="js/editeur.js?v=3"></script>
