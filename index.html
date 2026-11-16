@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Questionnaires DSFR pour Grist – Lab 17 bis</title>
+  <title>grist-questionnaire – widget de mise en page pour Grist</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.15.4/dist/dsfr.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@gouvfr/dsfr@1.15.4/dist/utility/icons/icons.min.css">
 </head>
@@ -14,11 +14,11 @@
         <div class="fr-header__body-row">
           <div class="fr-header__brand">
             <div class="fr-header__brand-top">
-              <div class="fr-header__logo"><p class="fr-logo">Académie<br>de Reims</p></div>
+              <div class="fr-header__logo"><p class="fr-logo">République<br>française</p></div>
             </div>
             <div class="fr-header__service">
-              <p class="fr-header__service-title">Questionnaires DSFR pour Grist</p>
-              <p class="fr-header__service-tagline">Lab 17 bis · Prototype</p>
+              <p class="fr-header__service-title">grist-questionnaire</p>
+              <p class="fr-header__service-tagline">Widget de mise en page pour Grist, clé en main</p>
             </div>
           </div>
         </div>
@@ -30,18 +30,19 @@
     <div class="fr-grid-row">
       <div class="fr-col-12 fr-col-lg-8">
         <h1>Des questionnaires au DSFR, avec logique conditionnelle, enregistrés dans Grist</h1>
-        <p class="fr-text--lead">Deux pages : un éditeur à placer dans un document Grist, et une page publique qui affiche le questionnaire aux couleurs du Système de design de l'État.</p>
+        <p class="fr-text--lead">Un widget clé en main à brancher dans Grist : un éditeur à placer dans le document, et une page publique qui affiche le questionnaire aux couleurs du Système de design de l'État.</p>
 
         <h2>Ce que ça apporte par rapport au formulaire natif de Grist</h2>
         <ul>
           <li>Questions, étapes et textes affichés seulement sous condition (ET / OU, conditions en cascade).</li>
           <li>Questionnaire en plusieurs étapes avec l'indicateur d'étapes du DSFR.</li>
-          <li>Composants, messages d'erreur et mise en page du DSFR.</li>
+          <li>Composants, messages d'erreur et mise en page du DSFR, avec en-tête et pied de page configurables (logo, titre, boutons).</li>
           <li>Les réponses arrivent dans la table Grist, comme avec le formulaire natif.</li>
         </ul>
 
         <h2>Mise en place</h2>
         <ol>
+          <li>Le plus simple : importez dans Grist le <a href="modele/modele-grist-questionnaire.grist" download>modèle de document sans données</a>. L'éditeur y est déjà installé et la page Formulaire existe : il reste à la publier.</li>
           <li>Dans le document Grist, ajoutez une vue <strong>Personnalisée</strong> sur la table des réponses, avec l'URL :
             <code id="url-editeur">editeur.html</code>, et accordez l'<strong>accès complet</strong> au document.</li>
           <li>Construisez le questionnaire dans l'éditeur, puis cliquez sur <strong>Enregistrer</strong>.</li>
@@ -62,9 +63,9 @@
   <footer class="fr-footer" role="contentinfo">
     <div class="fr-container">
       <div class="fr-footer__body">
-        <div class="fr-footer__brand"><p class="fr-logo">Académie<br>de Reims</p></div>
+        <div class="fr-footer__brand"><p class="fr-logo">République<br>française</p></div>
         <div class="fr-footer__content">
-          <p class="fr-footer__content-desc">Prototype du Lab 17 bis, laboratoire d'innovation publique de l'académie de Reims. Code source : <a href="https://github.com/lab17bis/questionnaires" target="_blank" rel="noopener" title="Dépôt GitHub - nouvelle fenêtre">github.com/lab17bis/questionnaires</a>.</p>
+          <p class="fr-footer__content-desc">Outil libre (licence MIT), conçu par le Lab 17 bis, laboratoire d'innovation publique de l'académie de Reims. Code source et documentation : <a href="https://github.com/lab17bis/grist-questionnaire" target="_blank" rel="noopener" title="Dépôt GitHub - nouvelle fenêtre">github.com/lab17bis/grist-questionnaire</a>.</p>
         </div>
       </div>
       <div class="fr-footer__bottom">
