@@ -232,8 +232,44 @@
     if (!enregistree) {
       message("info", "Aucune configuration enregistrée : un questionnaire a été préparé à partir des colonnes de la table « " +
         tableId + " ». Ajustez-le puis enregistrez.");
+      proposerExemple();
     }
     afficher();
+  }
+
+  /* ---------- Démarrage avec l'exemple ---------- */
+
+  // Sur une table sans réglages, l'éditeur propose de partir d'un questionnaire d'exemple :
+  // il crée les colonnes manquantes, charge l'exemple, et il ne reste qu'à enregistrer.
+  function proposerExemple() {
+    var z = $("#message");
+    z.insertAdjacentHTML("beforeend", "<p class=\"fr-mt-1w\"><button type=\"button\" class=\"fr-btn fr-btn--sm fr-btn--secondary\" id=\"ed-exemple\">" +
+      "Partir du questionnaire d'exemple (inscription à un atelier)</button></p>");
+    $("#ed-exemple").addEventListener("click", function () { chargerExemple().catch(function (e) { message("error", "Chargement de l'exemple impossible : " + (e.message || e)); }); });
+  }
+
+  async function chargerExemple() {
+    var ex = await fetch("exemples/inscription-atelier.json").then(function (r) { return r.json(); });
+    var existantes = {};
+    E.toutesColonnes.forEach(function (c) { existantes[c.colId] = true; });
+    var actions = [];
+    ex.etapes.forEach(function (et) {
+      et.elements.forEach(function (el) {
+        if (el.genre !== "question" || !el.colonne || existantes[el.colonne]) { return; }
+        var info = { type: el.type || "Text", label: el.libelle || el.colonne };
+        if (el.choix && el.choix.length) { info.widgetOptions = JSON.stringify({ choices: el.choix }); }
+        actions.push(["AddColumn", E.tableId, el.colonne, info]);
+        existantes[el.colonne] = true;
+      });
+    });
+    if (actions.length) { await grist.docApi.applyUserActions(actions); }
+    await chargerMeta();
+    E.config = ex;
+    E.selection = null;
+    E.choixModifies = {};
+    marquerModifie(true);
+    afficher();
+    message("info", "Questionnaire d'exemple chargé et colonnes créées. Vérifiez-le, puis cliquez sur « Enregistrer ».");
   }
 
   /* ---------- Vue « Questions » ---------- */

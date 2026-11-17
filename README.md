@@ -32,14 +32,16 @@ Usages possibles : inscription à un événement, demande d'accompagnement, appe
 
 ## Le brancher en 5 minutes
 
-1. **Partir du modèle** (recommandé) : téléchargez [`modele/modele-grist-questionnaire.grist`](modele/modele-grist-questionnaire.grist), puis importez-le dans Grist (*Ajouter › Importer un document*). Il contient une table de réponses vide, un questionnaire d'exemple avec une condition, la page de l'éditeur et la page du formulaire Grist à publier. Vous pouvez aussi partir de votre propre table.
-2. **Ajouter l'éditeur** : ajoutez une vue *Personnalisée* sur la table des réponses, avec l'adresse `https://lab17bis.github.io/grist-questionnaire/editeur.html`, et accordez l'**accès complet**. Cette étape est déjà faite dans le modèle.
+1. **Ajouter l'éditeur** : dans un document Grist, même vide, ajoutez une page *Personnalisé* sur la table qui recevra les réponses, avec l'adresse `https://lab17bis.github.io/grist-questionnaire/editeur.html`, et accordez l'**accès complet**.
+2. **Démarrer** : l'éditeur prépare un questionnaire à partir des colonnes de la table, ou propose *Partir du questionnaire d'exemple* (inscription à un atelier, avec une condition). Les colonnes nécessaires sont créées pour vous.
 3. **Construire** le questionnaire dans l'éditeur, puis cliquer sur *Enregistrer*.
 4. **Publier le formulaire Grist** de la même table (une seule fois) et copier son lien de partage.
 5. **Diffuser** : dans l'onglet *Publication* de l'éditeur, collez ce lien et cliquez sur *Vérifier et connecter*. L'éditeur donne le lien DSFR à diffuser :
    `https://lab17bis.github.io/grist-questionnaire/formulaire.html?grist=<lien du formulaire publié>`
 
 Ne diffusez pas le lien du formulaire Grist natif : il ignore la logique conditionnelle.
+
+Le modèle [`modele/modele-grist-questionnaire.grist`](modele/modele-grist-questionnaire.grist) reste disponible pour qui préfère importer un document tout prêt.
 
 ## Le régler
 
@@ -100,6 +102,8 @@ Personne qui répond ──> page DSFR (ce dépôt, GitHub Pages)
 - [grist-catalogue](https://github.com/lab17bis/grist-catalogue) : widget de mise en page pour Grist, catalogue public de fiches au DSFR.
 - [grist-graphique](https://github.com/lab17bis/grist-graphique) : widget de mise en page pour Grist, tableaux de bord et graphiques au DSFR.
 - [grist-projet](https://github.com/lab17bis/grist-projet) : widget-outil pour Grist, espace d'équipe pour gérer des projets au DSFR.
+- [grist-reunion](https://github.com/lab17bis/grist-reunion) : widget-outil pour Grist, ordre du jour, notes, décisions, actions et compte rendu de réunion.
+- [grist-management](https://github.com/lab17bis/grist-management) : widget-outil pour Grist, espace de management visuel qui assemble les autres outils.
 
 Ils partagent les mêmes réglages d'en-tête et de pied de page.
 
