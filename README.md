@@ -23,6 +23,7 @@ Usages possibles : inscription à un événement, demande d'accompagnement, appe
   - Conditions en cascade : une question masquée compte comme vide.
   - Une étape masquée est sautée, et les réponses aux questions masquées ne sont pas envoyées.
 - **Plusieurs étapes**, avec l'indicateur d'étapes du DSFR.
+- **Notes sur une échelle** réglable (de 1 à 5, de 0 à 10…), avec le sens des notes extrêmes, pour les enquêtes de satisfaction.
 - **Composants DSFR** : champs de saisie, boutons radio, cases à cocher, listes déroulantes, interrupteurs, dépôt de fichiers, encadrés, alertes.
 - **Messages d'erreur DSFR**, avec un récapitulatif cliquable en haut de page.
 - **En-tête et pied de page** configurables : bloc-marque, logo, titre, sous-titre, boutons, liens et logos de pied de page, mention d'accessibilité.

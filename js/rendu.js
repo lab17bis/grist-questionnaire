@@ -146,6 +146,16 @@
       return fs;
     }
 
+    function bornesEchelle(e) {
+      var b = Number(e.min), t = Number(e.max);
+      if (e.min === undefined || e.min === "" || isNaN(b)) { b = 1; }
+      if (e.max === undefined || e.max === "" || isNaN(t)) { t = 5; }
+      b = Math.round(b); t = Math.round(t);
+      if (t < b) { t = b; }
+      if (t - b > 10) { t = b + 10; }
+      return [b, t];
+    }
+
     function radio(nom, valeur, texte, i) {
       var rid = id + "-" + i;
       return h("div", { class: "fr-radio-group" }, [
@@ -164,7 +174,23 @@
 
     var noeud;
 
-    if (fam === "texte" || fam === "nombre" || fam === "date") {
+    if (fam === "nombre" && affichage === "echelle") {
+      var bas = bornesEchelle(el)[0], haut = bornesEchelle(el)[1], notes = [];
+      for (var n = bas; n <= haut; n += 1) {
+        var texteNote = String(n);
+        if (n === bas && el.libelleMin) { texteNote += " – " + el.libelleMin; }
+        if (n === haut && el.libelleMax) { texteNote += " – " + el.libelleMax; }
+        notes.push(radio(id, String(n), texteNote, n - bas));
+      }
+      noeud = fieldset(notes, true);
+      noeud.classList.add("q-echelle");
+      q.lire = function () {
+        var c = noeud.querySelector("input:checked");
+        return c ? Number(c.value) : null;
+      };
+    }
+
+    else if (fam === "texte" || fam === "nombre" || fam === "date") {
       var controle;
       if (fam === "texte" && affichage === "long") {
         controle = h("textarea", { class: "fr-input", id: id, name: id, rows: "5" });

@@ -49,7 +49,10 @@
       ["courriel", "Adresse électronique"],
       ["telephone", "Numéro de téléphone"]
     ],
-    nombre: [["nombre", "Nombre"]],
+    nombre: [
+      ["nombre", "Nombre"],
+      ["echelle", "Note sur une échelle (boutons 1, 2, 3…)"]
+    ],
     date: [["date", "Date"]],
     choix: [
       ["radio", "Boutons radio"],

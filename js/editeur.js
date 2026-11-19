@@ -32,6 +32,7 @@
     ["Text|telephone", "Numéro de téléphone"],
     ["Numeric|nombre", "Nombre"],
     ["Int|nombre", "Nombre entier"],
+    ["Int|echelle", "Note sur une échelle"],
     ["Date|date", "Date"],
     ["Choice|radio", "Choix unique"],
     ["ChoiceList|cases", "Choix multiples"],
@@ -489,7 +490,12 @@
       if (fam === "texte") {
         html += champTexte("longueurMax", "Nombre maximal de caractères (facultatif)", obj.longueurMax || "", { type: "number" });
       }
-      if (fam === "nombre") {
+      if (fam === "nombre" && obj.affichage === "echelle") {
+        html += champTexte("min", "Note la plus basse", obj.min === undefined ? "" : obj.min, { type: "number", aide: "Par défaut 1." });
+        html += champTexte("max", "Note la plus haute", obj.max === undefined ? "" : obj.max, { type: "number", aide: "Par défaut 5. Onze notes au plus." });
+        html += champTexte("libelleMin", "Sens de la note la plus basse (facultatif)", obj.libelleMin || "", { aide: "Par exemple : Pas du tout satisfait." });
+        html += champTexte("libelleMax", "Sens de la note la plus haute (facultatif)", obj.libelleMax || "", { aide: "Par exemple : Tout à fait satisfait." });
+      } else if (fam === "nombre") {
         html += champTexte("min", "Valeur minimale (facultatif)", obj.min === undefined ? "" : obj.min, { type: "number" });
         html += champTexte("max", "Valeur maximale (facultatif)", obj.max === undefined ? "" : obj.max, { type: "number" });
       }
