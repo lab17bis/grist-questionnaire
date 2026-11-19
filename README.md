@@ -125,16 +125,20 @@ Ce widget est déjà assemblé, avec d'autres, dans des **espaces** : des docume
 - [espace-accompagnement](https://github.com/lab17bis/espace-accompagnement) : suivre les sollicitations : offre de service, fiches contact, satisfaction et indicateurs.
 - [espace-sondage](https://github.com/lab17bis/espace-sondage) : mener une enquête : questionnaire, suivi des répondants et indicateurs.
 - [espace-reseau](https://github.com/lab17bis/espace-reseau) : animer un réseau : membres, groupes, rencontres et présences, ressources partagées, retours et indicateurs.
+- [espace-contributions](https://github.com/lab17bis/espace-contributions) : faire participer : boîte à idées, valorisation des réalisations des équipes, votes et suites données.
 
 ## Autres outils de la même famille
 
-- [grist-catalogue](https://github.com/lab17bis/grist-catalogue) : widget de mise en page pour Grist, catalogue public de fiches au DSFR.
-- [grist-graphique](https://github.com/lab17bis/grist-graphique) : widget de mise en page pour Grist, tableaux de bord et graphiques au DSFR.
-- [grist-projet](https://github.com/lab17bis/grist-projet) : widget-outil pour Grist, espace d'équipe pour gérer des projets au DSFR.
-- [grist-reunion](https://github.com/lab17bis/grist-reunion) : widget-outil pour Grist, ordre du jour, notes, décisions, actions et compte rendu de réunion.
-- [grist-management](https://github.com/lab17bis/grist-management) : widget-outil pour Grist, écran de management visuel d'équipe (météo, signalements, escalade), qui affiche aussi les données des autres widgets.
+- [grist-catalogue](https://github.com/lab17bis/grist-catalogue) : catalogue public de fiches au DSFR.
+- [grist-graphique](https://github.com/lab17bis/grist-graphique) : tableaux de bord et graphiques au DSFR.
+- [grist-projet](https://github.com/lab17bis/grist-projet) : espace d'équipe pour gérer des projets.
+- [grist-reunion](https://github.com/lab17bis/grist-reunion) : réunions : ordre du jour, séance, compte rendu et suivi des actions.
+- [grist-management](https://github.com/lab17bis/grist-management) : écran de management visuel d'équipe.
+- [grist-decision](https://github.com/lab17bis/grist-decision) : consultations : boîte à idées, valorisation des réalisations, votes et suites données.
+- [grist-carte](https://github.com/lab17bis/grist-carte) : carte interactive des lignes d'une table, au fond de l'IGN.
+- [grist-graphe](https://github.com/lab17bis/grist-graphe) : cartographie des acteurs et de leurs liens.
 
-Ils partagent les mêmes réglages d'en-tête et de pied de page.
+Les widgets qui ont un en-tête et un pied de page partagent les mêmes réglages.
 
 ## Écosystème
 
