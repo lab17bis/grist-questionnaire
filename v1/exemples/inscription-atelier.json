@@ -1,0 +1,107 @@
+{
+  "version": 1,
+  "titre": "Inscription à un atelier",
+  "introduction": "Questionnaire d'exemple : adaptez les questions, les étapes et les conditions dans l'éditeur.",
+  "page": {
+    "marque": "République\nfrançaise",
+    "titre": "Nom du service",
+    "sousTitre": "",
+    "boutons": [],
+    "pied": {
+      "accessibilite": "non conforme"
+    }
+  },
+  "envoi": {
+    "bouton": "Envoyer",
+    "titreConfirmation": "Votre inscription a bien été envoyée",
+    "messageConfirmation": "Merci.",
+    "autreReponse": false
+  },
+  "mentionObligatoire": "asterisque",
+  "mentionsDonnees": "",
+  "etapes": [
+    {
+      "id": "e1",
+      "titre": "Vous",
+      "description": "",
+      "condition": null,
+      "elements": [
+        {
+          "id": "q1",
+          "genre": "question",
+          "colonne": "Nom",
+          "type": "Text",
+          "libelle": "Nom et prénom",
+          "aide": "",
+          "obligatoire": true,
+          "affichage": "court"
+        },
+        {
+          "id": "q2",
+          "genre": "question",
+          "colonne": "Courriel",
+          "type": "Text",
+          "libelle": "Adresse électronique",
+          "aide": "Format attendu : nom@domaine.fr",
+          "obligatoire": true,
+          "affichage": "courriel"
+        }
+      ]
+    },
+    {
+      "id": "e2",
+      "titre": "Votre inscription",
+      "description": "",
+      "condition": null,
+      "elements": [
+        {
+          "id": "q3",
+          "genre": "question",
+          "colonne": "Atelier",
+          "type": "Choice",
+          "libelle": "Quel atelier vous intéresse ?",
+          "aide": "",
+          "obligatoire": true,
+          "affichage": "radio",
+          "choix": [
+            "Atelier A",
+            "Atelier B",
+            "Autre"
+          ]
+        },
+        {
+          "id": "q4",
+          "genre": "question",
+          "colonne": "Precision",
+          "type": "Text",
+          "libelle": "Précisez",
+          "aide": "",
+          "obligatoire": true,
+          "affichage": "court",
+          "condition": {
+            "mode": "toutes",
+            "regles": [
+              {
+                "element": "q3",
+                "operateur": "parmi",
+                "valeur": [
+                  "Autre"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "q5",
+          "genre": "question",
+          "colonne": "Accord",
+          "type": "Bool",
+          "libelle": "J'accepte que mes réponses soient utilisées pour organiser l'atelier.",
+          "aide": "",
+          "obligatoire": true,
+          "affichage": "case"
+        }
+      ]
+    }
+  ]
+}

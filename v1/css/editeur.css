@@ -1,0 +1,236 @@
+/* Éditeur (widget Grist). */
+
+body {
+  background: var(--background-alt-grey);
+  font-size: 0.875rem;
+}
+
+.ed-barre {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1rem;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 1rem;
+  background: var(--background-default-grey);
+  border-bottom: 1px solid var(--border-default-grey);
+}
+
+.ed-barre__titre {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.ed-nom {
+  margin: 0;
+  font-weight: 700;
+}
+
+.ed-barre .fr-segmented {
+  margin: 0;
+}
+
+.ed-message:empty {
+  display: none;
+}
+
+.ed-message {
+  padding: 0.5rem 1rem 0;
+}
+
+.ed-vue {
+  padding: 1rem;
+}
+
+.ed-grille {
+  display: grid;
+  grid-template-columns: minmax(16rem, 2fr) minmax(18rem, 3fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+@media (max-width: 760px) {
+  .ed-grille {
+    grid-template-columns: 1fr;
+  }
+}
+
+.ed-panneau {
+  background: var(--background-default-grey);
+  border: 1px solid var(--border-default-grey);
+  padding: 1rem;
+}
+
+.ed-proprietes {
+  position: sticky;
+  top: 4.5rem;
+  max-height: calc(100vh - 5.5rem);
+  overflow: auto;
+}
+
+.ed-etape {
+  border: 1px solid var(--border-default-grey);
+  background: var(--background-default-grey);
+  margin-bottom: 0.75rem;
+}
+
+.ed-etape.est-choisi {
+  border-color: var(--border-active-blue-france);
+  box-shadow: inset 3px 0 0 var(--border-active-blue-france);
+}
+
+.ed-etape__entete {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.5rem 0.5rem 0.5rem 0.75rem;
+  background: var(--background-contrast-grey);
+}
+
+.ed-ligne {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.ed-choisir {
+  flex: 1;
+  min-width: 0;
+  text-align: left;
+  background: none;
+  border: 0;
+  padding: 0.25rem;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+}
+
+.ed-choisir:hover {
+  background: var(--background-default-grey-hover);
+}
+
+.ed-etape__titre {
+  font-weight: 700;
+}
+
+.ed-liste {
+  list-style: none;
+  margin: 0;
+  padding: 0.25rem 0.5rem;
+}
+
+.ed-item {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.125rem 0;
+  border-bottom: 1px solid var(--border-default-grey);
+}
+
+.ed-item:last-child {
+  border-bottom: 0;
+}
+
+.ed-item.est-choisi {
+  background: var(--background-action-low-blue-france);
+}
+
+.ed-item__libelle {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ed-item__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin-top: 0.125rem;
+}
+
+.ed-ajouts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+  padding: 0.5rem;
+  border-top: 1px dashed var(--border-default-grey);
+}
+
+.ed-ajouts .fr-select {
+  width: auto;
+  flex: 1;
+  min-width: 12rem;
+  margin: 0;
+}
+
+.ed-vide {
+  color: var(--text-mention-grey);
+  font-style: italic;
+  padding: 0.5rem 0;
+}
+
+.ed-regle {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  margin-bottom: 0.5rem;
+  background: var(--background-alt-blue-france);
+}
+
+.ed-regle .fr-select,
+.ed-regle .fr-input {
+  margin-top: 0;
+}
+
+.ed-regle__valeurs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1rem;
+}
+
+.ed-resume {
+  padding: 0.5rem 0.75rem;
+  border-left: 3px solid var(--border-plain-blue-france);
+  background: var(--background-contrast-grey);
+}
+
+.ed-proprietes .fr-input-group,
+.ed-proprietes .fr-select-group,
+.ed-proprietes .fr-checkbox-group,
+.ed-proprietes .fr-toggle {
+  margin-bottom: 1rem;
+}
+
+.ed-section-titre {
+  margin: 1.5rem 0 0.75rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-default-grey);
+}
+
+.ed-apercu {
+  max-width: 48rem;
+  margin: 0 auto;
+  padding: 2rem;
+  background: var(--background-default-grey);
+  border: 1px solid var(--border-default-grey);
+}
+
+.ed-textes {
+  max-width: 48rem;
+}
+
+.ed-code {
+  font-family: monospace;
+  font-size: 0.75rem;
+}
+
+.ed-controles li {
+  margin-bottom: 0.25rem;
+}

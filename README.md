@@ -33,12 +33,12 @@ Usages possibles : inscription à un événement, demande d'accompagnement, appe
 
 ## Le brancher en 5 minutes
 
-1. **Ajouter l'éditeur** : dans un document Grist, même vide, ajoutez une page *Personnalisé* sur la table qui recevra les réponses, avec l'adresse `https://lab17bis.github.io/grist-questionnaire/editeur.html`, et accordez l'**accès complet**.
+1. **Ajouter l'éditeur** : dans un document Grist, même vide, ajoutez une page *Personnalisé* sur la table qui recevra les réponses, avec l'adresse `https://lab17bis.github.io/grist-questionnaire/v1/editeur.html`, et accordez l'**accès complet**.
 2. **Démarrer** : l'éditeur prépare un questionnaire à partir des colonnes de la table, ou propose *Partir du questionnaire d'exemple* (inscription à un atelier, avec une condition). Les colonnes nécessaires sont créées pour vous.
 3. **Construire** le questionnaire dans l'éditeur, puis cliquer sur *Enregistrer*.
 4. **Publier le formulaire Grist** de la même table (une seule fois) et copier son lien de partage.
 5. **Diffuser** : dans l'onglet *Publication* de l'éditeur, collez ce lien et cliquez sur *Vérifier et connecter*. L'éditeur donne le lien DSFR à diffuser :
-   `https://lab17bis.github.io/grist-questionnaire/formulaire.html?grist=<lien du formulaire publié>`
+   `https://lab17bis.github.io/grist-questionnaire/v1/formulaire.html?grist=<lien du formulaire publié>`
 
 Ne diffusez pas le lien du formulaire Grist natif : il ignore la logique conditionnelle.
 
@@ -97,6 +97,26 @@ Personne qui répond ──> page DSFR (ce dépôt, GitHub Pages)
 - Le questionnaire dépend du formulaire Grist publié : s'il est dépublié, le lien DSFR ne fonctionne plus.
 - Pas encore de calculs, de score, de redirection selon les réponses, ni de pré-remplissage par l'adresse.
 - Aucun audit RGAA n'a été mené.
+
+## Version stable et version en cours
+
+Dans Grist, utilisez l'adresse de la **version stable** : `https://lab17bis.github.io/grist-questionnaire/v1/`. Elle ne change que pour corriger un défaut, sans toucher aux tables ni aux réglages. Une évolution qui les modifie paraît sous une nouvelle adresse (`v2/`) : les documents déjà en service restent sur `v1/` tant que vous ne changez pas l'adresse du widget.
+
+L'adresse sans numéro (`https://lab17bis.github.io/grist-questionnaire/`) suit la version en cours de développement. Elle sert à essayer les nouveautés ; ne l'utilisez pas pour un document en service.
+
+Pour figer une nouvelle version stable après des tests réussis : `sh outils/figer-version.sh 1` (ou `2` pour une version qui change les tables), puis publiez le dépôt.
+
+## Données partagées avec les autres outils
+
+Plusieurs outils de la même famille peuvent travailler dans un même document Grist. Ils suivent une règle commune pour ne pas dupliquer les données :
+
+- **Une seule table `Personnes`** par document. Colonne commune : `Nom`. Colonnes facultatives reconnues par tous : `Email` et `Structure` (référence à `Structures`). Un outil lit cette table si elle existe et la crée seulement si elle manque. Il n'y ajoute que ses propres colonnes.
+- **Une seule table `Structures`** pour les équipes, services ou établissements : `Nom`, `Sigle`, `Type`, `Parent` (structure de rattachement).
+- **Aucun outil ne supprime ni ne renomme** une table ou une colonne qu'il n'a pas créée.
+- **Les autres tables portent des noms propres à chaque outil**, pour éviter les collisions (par exemple `Actions` pour grist-projet, `Actions_reunion` pour grist-reunion). Les réglages sont rangés dans la description d'une colonne technique propre à l'outil (`Config_…`).
+- **Identifier la personne connectée** : un widget ne connaît pas l'adresse de la personne connectée. Les colonnes « créé par » utilisent une formule `user.Email` calculée à la création. Seul un outil qui doit relier la personne connectée à sa fiche crée la table `Comptes`.
+
+Ce que fait cet outil : Il ne crée aucune table de personnes : les réponses vont dans la table que vous choisissez.
 
 ## Espaces clés en main
 
