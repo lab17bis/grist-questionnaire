@@ -124,7 +124,7 @@ Ce widget est déjà assemblé, avec d'autres, dans des **espaces** : des docume
 
 - [espace-accompagnement](https://github.com/lab17bis/espace-accompagnement) : suivre les sollicitations : offre de service, fiches contact, satisfaction et indicateurs.
 - [espace-sondage](https://github.com/lab17bis/espace-sondage) : mener une enquête : questionnaire, suivi des répondants et indicateurs.
-- [espace-reseau](https://github.com/lab17bis/espace-reseau) : animer un réseau : membres, groupes, rencontres et présences, ressources partagées, retours et indicateurs.
+- [espace-communaute](https://github.com/lab17bis/espace-communaute) : animer une communauté de pratique ou un réseau : membres, groupes, rencontres et présences, ressources partagées (proposées aussi par formulaire public), retours et indicateurs.
 - [espace-contributions](https://github.com/lab17bis/espace-contributions) : faire participer : boîte à idées, valorisation des réalisations des équipes, votes et suites données.
 
 ## Autres outils de la même famille
