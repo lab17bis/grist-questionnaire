@@ -656,7 +656,7 @@
     html += "<div id=\"controles\" class=\"fr-mt-2w\" aria-live=\"polite\"></div>";
     html += "<h2 class=\"fr-h5 ed-section-titre\">3. Lien à diffuser</h2>";
     if (lien) {
-      var iframe = "<iframe src=\"" + lien + "&integre=1\" title=\"" + (E.config.titre || "Questionnaire") +
+      var iframe = "<iframe src=\"" + lien + "&integre=1\" title=\"" + esc(E.config.titre || "Questionnaire") +
         "\" style=\"width:100%;height:900px;border:0\"></iframe>";
       html += "<div class=\"fr-input-group\"><label class=\"fr-label\" for=\"lien-public\">Lien public du questionnaire DSFR</label>" +
         "<input class=\"fr-input ed-code\" type=\"text\" readonly id=\"lien-public\" value=\"" + esc(lien) + "\"></div>" +

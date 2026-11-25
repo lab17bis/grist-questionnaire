@@ -2,6 +2,14 @@
 
 Les fichiers publiés ne sont jamais retirés : chaque version ajoute ou corrige, sans casser l'existant.
 
+## 2026-11-25 (audit de sécurité)
+
+### Sécurité
+- Les liens venant des données ou des réglages sont vérifiés par le navigateur lui-même : une adresse déguisée (« java⇥script: » avec tabulation, retour à la ligne ou caractère de contrôle) n'est plus acceptée. Elle permettait, sur le portail, d'exécuter du script au clic depuis une adresse fabriquée.
+- Politique de sécurité de contenu stricte : seuls les scripts du site, l'API Grist et les scripts de la page connus par leur empreinte peuvent s'exécuter. Un script injecté (lien javascript:, attribut onerror…) est bloqué même si un filtre le laissait passer.
+- Feuilles de style du DSFR chargées depuis le CDN : empreinte d'intégrité (SRI), le navigateur refuse un fichier modifié.
+- Code d'intégration (iframe) : le titre est échappé, un guillemet ne casse plus le code collé sur un autre site.
+
 ## 2026-11-24 (durcissement)
 
 ### Sécurité
