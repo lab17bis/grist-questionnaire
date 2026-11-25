@@ -2,6 +2,11 @@
 
 Les fichiers publiés ne sont jamais retirés : chaque version ajoute ou corrige, sans casser l'existant.
 
+## 2026-11-25 (mention de conception)
+
+### Ajouté
+- Mention discrète en pied de page, sur l'outil comme sur ses pages publiques : « Widget conçu par le Lab 17 bis, le laboratoire d'innovation publique de l'académie de Reims ».
+
 ## 2026-11-25 (audit de sécurité)
 
 ### Sécurité
