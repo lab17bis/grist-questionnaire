@@ -58,3 +58,114 @@
 .qd-intro p:last-child {
   margin-bottom: 1rem;
 }
+
+/* Choix « Autre » : champ de précision sous la liste. */
+.qd-autre {
+  margin-top: 0.75rem;
+}
+
+.qd-autre[hidden] {
+  display: none !important;
+}
+
+/* Classement par ordre : liste numérotée, déplaçable à la souris ou avec les boutons. */
+.qd-classement {
+  list-style: none;
+  margin: 0 0 0.75rem;
+  padding: 0;
+}
+
+.qd-classement__item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.25rem 0.5rem 0.25rem 1rem;
+  margin-bottom: 0.5rem;
+  background: var(--background-default-grey);
+  box-shadow: inset 0 0 0 1px var(--border-default-grey);
+  cursor: grab;
+}
+
+.qd-classement__item.qd-glisse {
+  opacity: 0.5;
+  box-shadow: inset 0 0 0 2px var(--border-active-blue-france);
+}
+
+.qd-rang {
+  min-width: 1.5rem;
+  font-weight: 700;
+  color: var(--text-action-high-blue-france);
+}
+
+.qd-classement__texte {
+  flex: 1 1 auto;
+}
+
+.qd-classement__boutons {
+  display: flex;
+  flex: none;
+}
+
+.qd-classement__aide {
+  margin-bottom: 0.75rem;
+}
+
+/* Tableau de choix (matrice) : défilement horizontal sur petit écran. */
+.qd-matrice-cadre {
+  overflow-x: auto;
+}
+
+.qd-matrice {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.qd-matrice th,
+.qd-matrice td {
+  padding: 0.5rem 0.75rem;
+  text-align: center;
+  box-shadow: inset 0 -1px 0 0 var(--border-default-grey);
+}
+
+.qd-matrice tbody th[scope="row"] {
+  text-align: left;
+  font-weight: 400;
+  min-width: 10rem;
+}
+
+.qd-matrice thead th {
+  font-weight: 700;
+  font-size: 0.875rem;
+}
+
+.qd-matrice__radio {
+  display: flex;
+  justify-content: center;
+}
+
+.qd-matrice__radio .fr-label {
+  padding-left: 0;
+  min-height: 1.5rem;
+}
+
+/* Médias intégrés. */
+.qd-media audio,
+.qd-media video,
+.qd-media .qd-pdf {
+  width: 100%;
+  max-width: 100%;
+}
+
+.qd-pdf {
+  height: 32rem;
+  border: 1px solid var(--border-default-grey);
+  margin-bottom: 0.75rem;
+}
+
+.qd-media__legende {
+  margin-bottom: 0.5rem;
+}
+
+.qd-transcription {
+  margin-top: 0.75rem;
+}

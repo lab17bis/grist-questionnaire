@@ -2,6 +2,22 @@
 
 Les fichiers publiés ne sont jamais retirés : chaque version ajoute ou corrige, sans casser l'existant.
 
+## 2026-11-26
+
+### Ajouté
+- Nouveaux types de réponse : adresse web (lien), heure, date et heure (colonne Grist avec fuseau Europe/Paris, valeur enregistrée en secondes comme Grist l'attend).
+- Options facultatives par question : nombre minimal et maximal de choix, choix « Autre » avec précision (colonne dédiée créée à l'enregistrement), réponse par défaut, ordre aléatoire des choix, libellé du milieu sur une échelle.
+- Classement par ordre : glisser-déposer et boutons Monter / Descendre, annonce vocale de la position, réponse dans une seule cellule (liste de choix ordonnée).
+- Tableau de choix (matrice) : une colonne de choix par ligne, créée à l'enregistrement ; réponse exigée par ligne si le tableau est obligatoire.
+- Médias dans la page : image (texte alternatif réclamé), son et vidéo (transcription réclamée), PDF intégré ou en lien. Adresses `https://` uniquement.
+- Éditeur : éléments déplaçables par glisser-déposer, d'une étape à l'autre, en plus des boutons.
+- Les colonnes créées par le questionnaire (précision « Autre », lignes de tableau) sont ajoutées automatiquement au formulaire publié à la connexion.
+- Politique de sécurité : `media-src` ouvert aux adresses `https:` pour lire son et vidéo.
+- Tests automatiques du rendu public et de l'éditeur (`tests/`).
+
+### Corrigé
+- Éditeur : un clic sur un bouton juste après une saisie de texte pouvait être perdu, car la liste de gauche était reconstruite pendant le clic. Seul l'intitulé est maintenant mis à jour sur place.
+
 ## 2026-11-25 (mention de conception)
 
 ### Ajouté

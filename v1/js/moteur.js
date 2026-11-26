@@ -47,18 +47,26 @@
       ["court", "Texte court"],
       ["long", "Texte long (plusieurs lignes)"],
       ["courriel", "Adresse électronique"],
-      ["telephone", "Numéro de téléphone"]
+      ["telephone", "Numéro de téléphone"],
+      ["lien", "Adresse web (lien)"],
+      ["heure", "Heure"]
     ],
     nombre: [
       ["nombre", "Nombre"],
       ["echelle", "Note sur une échelle (boutons 1, 2, 3…)"]
     ],
-    date: [["date", "Date"]],
+    date: [
+      ["date", "Date"],
+      ["datetime", "Date et heure"]
+    ],
     choix: [
       ["radio", "Boutons radio"],
       ["liste", "Liste déroulante"]
     ],
-    choix_multiple: [["cases", "Cases à cocher"]],
+    choix_multiple: [
+      ["cases", "Cases à cocher"],
+      ["classement", "Classement par ordre (éléments à déplacer)"]
+    ],
     booleen: [
       ["case", "Case à cocher"],
       ["ouinon", "Boutons Oui / Non"],
@@ -68,7 +76,10 @@
       ["liste", "Liste déroulante"],
       ["radio", "Boutons radio"]
     ],
-    ref_multiple: [["cases", "Cases à cocher"]],
+    ref_multiple: [
+      ["cases", "Cases à cocher"],
+      ["classement", "Classement par ordre (éléments à déplacer)"]
+    ],
     fichier: [["fichier", "Dépôt de fichiers"]]
   };
 
@@ -107,6 +118,30 @@
     booleen: ["vrai", "faux"],
     fichier: ["rempli", "vide"]
   };
+
+  // Présentation par défaut d'une question : la première de la famille, sauf pour une colonne date et heure.
+  function affichageParDefaut(fam, typeGrist) {
+    if (fam === "date" && /^DateTime/.test(String(typeGrist || ""))) { return "datetime"; }
+    return (AFFICHAGES[fam] || [[""]])[0][0];
+  }
+
+  var LIBELLE_AUTRE = "Autre";
+
+  // Adresse de média acceptée : https uniquement, sans espace ni caractère de balisage.
+  function adresseSure(url) {
+    var u = String(url || "").trim();
+    return /^https:\/\/[^\s"'<>]+$/i.test(u) ? u : "";
+  }
+
+  // Copie mélangée (Fisher-Yates) : sert à présenter les choix dans un ordre aléatoire.
+  function melanger(liste) {
+    var a = liste.slice();
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var t = a[i]; a[i] = a[j]; a[j] = t;
+    }
+    return a;
+  }
 
   var OPERATEURS_SANS_VALEUR = ["rempli", "vide", "vrai", "faux"];
   var OPERATEURS_LISTE = ["parmi", "hors", "contient_un", "contient_tous", "ne_contient_aucun"];
@@ -283,7 +318,20 @@
       var avantEtape = Object.assign({}, vues);
       verifierRegles(etape.condition, nomEtape, avantEtape);
       (etape.elements || []).forEach(function (el) {
-        var nom = el.genre === "question" ? "Question « " + (el.libelle || el.colonne) + " »" : "Bloc de texte";
+        var nom = el.genre === "question" ? "Question « " + (el.libelle || el.colonne) + " »" :
+          el.genre === "matrice" ? "Tableau « " + (el.libelle || "sans titre") + " »" :
+          el.genre === "media" ? "Média" : "Bloc de texte";
+        if (el.genre === "matrice" && (!(el.lignes || []).length || !(el.colonnesChoix || []).length)) {
+          problemes.push(nom + " : ajoutez au moins une ligne et une colonne.");
+        }
+        if (el.genre === "media") {
+          if (!adresseSure(el.adresse)) { problemes.push(nom + " : l'adresse doit commencer par https://."); }
+          if (el.type === "image" && !el.description) { problemes.push(nom + " : ajoutez un texte alternatif à l'image."); }
+          if ((el.type === "audio" || el.type === "video") && !el.transcription) { problemes.push(nom + " : ajoutez une transcription."); }
+        }
+        if (el.genre === "question" && el.choixMin && el.choixMax && Number(el.choixMin) > Number(el.choixMax)) {
+          problemes.push(nom + " : le minimum de choix dépasse le maximum.");
+        }
         verifierRegles(el.condition, nom, vues);
         if (el.genre === "question") { vues[el.id] = true; }
       });
@@ -329,6 +377,10 @@
     OPERATEURS_SANS_VALEUR: OPERATEURS_SANS_VALEUR,
     OPERATEURS_LISTE: OPERATEURS_LISTE,
     famille: famille,
+    affichageParDefaut: affichageParDefaut,
+    LIBELLE_AUTRE: LIBELLE_AUTRE,
+    adresseSure: adresseSure,
+    melanger: melanger,
     estVide: estVide,
     elementsOrdonnes: elementsOrdonnes,
     trouverElement: trouverElement,

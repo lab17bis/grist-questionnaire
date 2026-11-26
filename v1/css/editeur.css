@@ -234,3 +234,33 @@ body {
 .ed-controles li {
   margin-bottom: 0.25rem;
 }
+
+/* Glisser-déposer des éléments dans la structure. */
+.ed-item {
+  cursor: grab;
+}
+
+.ed-poignee {
+  flex: none;
+  padding: 0 0.25rem;
+  color: var(--text-mention-grey);
+  letter-spacing: -0.2em;
+  user-select: none;
+}
+
+.ed-item.est-glisse {
+  opacity: 0.4;
+}
+
+.ed-item.depot-avant {
+  box-shadow: 0 -3px 0 0 var(--border-active-blue-france);
+}
+
+.ed-item.depot-apres {
+  box-shadow: 0 3px 0 0 var(--border-active-blue-france);
+}
+
+.ed-etape.depot-fin {
+  outline: 2px dashed var(--border-active-blue-france);
+  outline-offset: 2px;
+}

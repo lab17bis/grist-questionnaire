@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="fr"><head><meta charset="utf-8"><title>Test du rendu</title>
+<link rel="stylesheet" href="../css/commun.css"></head>
+<body><div id="racine"></div>
+<script src="../js/moteur.js"></script>
+<script src="../js/rendu.js"></script>
+<script>
+  window.ENVOYES = [];
+  window.monterTest = function (config, champs) {
+    window.ENVOYES = [];
+    window.RENDU = QuestionnaireRendu.monter(document.getElementById("racine"), {
+      config: config, champs: champs || {},
+      envoyer: function (champs, fichiers) { window.ENVOYES.push(champs); return Promise.resolve(); }
+    });
+  };
+</script></body></html>

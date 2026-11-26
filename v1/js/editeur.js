@@ -30,12 +30,16 @@
     ["Text|long", "Texte long"],
     ["Text|courriel", "Adresse électronique"],
     ["Text|telephone", "Numéro de téléphone"],
+    ["Text|lien", "Adresse web (lien)"],
+    ["Text|heure", "Heure"],
     ["Numeric|nombre", "Nombre"],
     ["Int|nombre", "Nombre entier"],
     ["Int|echelle", "Note sur une échelle"],
     ["Date|date", "Date"],
+    ["DateTime|datetime", "Date et heure"],
     ["Choice|radio", "Choix unique"],
     ["ChoiceList|cases", "Choix multiples"],
+    ["ChoiceList|classement", "Classement par ordre"],
     ["Bool|ouinon", "Oui / Non"],
     ["Bool|case", "Case à cocher (accord)"],
     ["Attachments|fichier", "Fichiers joints"]
@@ -46,6 +50,15 @@
     choix_multiple: "Choix multiples", booleen: "Oui / Non", ref: "Référence",
     ref_multiple: "Références", fichier: "Fichiers"
   };
+
+  var NOMS_MEDIAS = { image: "Image", audio: "Audio", video: "Vidéo", pdf: "Document PDF" };
+
+  var TYPES_MEDIA = [
+    ["image", "Image"],
+    ["audio", "Son (lecteur audio)"],
+    ["video", "Vidéo (lecteur vidéo)"],
+    ["pdf", "Document PDF"]
+  ];
 
   var STYLES_TEXTE = [
     ["paragraphe", "Paragraphe"],
@@ -115,6 +128,11 @@
       var t = el.titre || el.texte || "";
       return t.length > 60 ? t.slice(0, 60) + "…" : (t || "Bloc de texte vide");
     }
+    if (el.genre === "media") {
+      var m = el.titre || el.adresse || "";
+      return "Média : " + (m.length > 50 ? m.slice(0, 50) + "…" : (m || "adresse à renseigner"));
+    }
+    if (el.genre === "matrice") { return el.libelle || "Tableau sans titre"; }
     return el.libelle || el.colonne || "Question sans libellé";
   }
 
@@ -153,8 +171,32 @@
 
   function colonnesUtilisees() {
     var u = {};
-    toutesQuestions().forEach(function (o) { if (o.element.colonne) { u[o.element.colonne] = true; } });
+    toutesQuestions().forEach(function (o) {
+      if (o.element.colonne) { u[o.element.colonne] = true; }
+      if (o.element.colonneAutre) { u[o.element.colonneAutre] = true; }
+    });
+    M.elementsOrdonnes(E.config).forEach(function (o) {
+      if (o.element.genre === "matrice") {
+        (o.element.lignes || []).forEach(function (l) { if (l.colonne) { u[l.colonne] = true; } });
+      }
+    });
     return u;
+  }
+
+  // Colonnes ajoutées par le questionnaire lui-même (précision « Autre », lignes de tableau).
+  function colonnesCompagnes() {
+    var u = {};
+    M.elementsOrdonnes(E.config).forEach(function (o) {
+      var el = o.element;
+      if (el.genre === "question" && el.colonneAutre) { u[el.colonneAutre] = true; }
+      if (el.genre === "matrice") { (el.lignes || []).forEach(function (l) { if (l.colonne) { u[l.colonne] = true; } }); }
+    });
+    return u;
+  }
+
+  function choixAffiches(el) {
+    var lib = el.libelleAutre || M.LIBELLE_AUTRE;
+    return choixElement(el).filter(function (c) { return !(el.autre && c === lib); });
   }
 
   function resumeCondition(cond) {
@@ -286,7 +328,7 @@
     var html = "";
     E.config.etapes.forEach(function (etape, i) {
       var choisie = E.selection && E.selection.type === "etape" && E.selection.id === etape.id;
-      html += "<div class=\"ed-etape" + (choisie ? " est-choisi" : "") + "\">";
+      html += "<div class=\"ed-etape" + (choisie ? " est-choisi" : "") + "\" data-etape=\"" + etape.id + "\">";
       html += "<div class=\"ed-etape__entete\">" +
         "<button type=\"button\" class=\"ed-choisir\" data-action=\"choisir-etape\" data-id=\"" + etape.id + "\">" +
         "<span class=\"ed-etape__titre\">Étape " + (i + 1) + (etape.titre ? " · " + esc(etape.titre) : "") + "</span>" +
@@ -297,9 +339,9 @@
         htmlBoutonIcone("descendre-etape", "fr-icon-arrow-down-line", "Descendre l'étape", "data-id=\"" + etape.id + "\"" + (i === E.config.etapes.length - 1 ? " disabled" : "")) +
         htmlBoutonIcone("supprimer-etape", "fr-icon-delete-line", "Supprimer l'étape", "data-id=\"" + etape.id + "\"") +
         "</div>";
-      html += "<ol class=\"ed-liste\">";
+      html += "<ol class=\"ed-liste\" data-etape=\"" + etape.id + "\">";
       if (!(etape.elements || []).length) {
-        html += "<li class=\"ed-vide\">Étape vide : ajoutez une question ou un texte.</li>";
+        html += "<li class=\"ed-vide\">Étape vide : ajoutez une question ou un texte (ou glissez un élément ici).</li>";
       }
       (etape.elements || []).forEach(function (el) {
         var choisi = E.selection && E.selection.type === "element" && E.selection.id === el.id;
@@ -308,13 +350,19 @@
           badges += "<span class=\"fr-badge fr-badge--sm\">" + esc(NOMS_FAMILLES[M.famille(typeElement(el))]) + "</span>";
           if (el.obligatoire) { badges += "<span class=\"fr-badge fr-badge--sm fr-badge--info\">Obligatoire</span>"; }
           if (el.aCreer) { badges += "<span class=\"fr-badge fr-badge--sm fr-badge--new\">Nouvelle colonne</span>"; }
+        } else if (el.genre === "matrice") {
+          badges += "<span class=\"fr-badge fr-badge--sm\">Tableau</span>";
+          if (el.obligatoire) { badges += "<span class=\"fr-badge fr-badge--sm fr-badge--info\">Obligatoire</span>"; }
+        } else if (el.genre === "media") {
+          badges += "<span class=\"fr-badge fr-badge--sm fr-badge--grey\">" + esc(NOMS_MEDIAS[el.type] || "Média") + "</span>";
         } else {
           badges += "<span class=\"fr-badge fr-badge--sm fr-badge--grey\">Texte</span>";
         }
         if (el.condition && el.condition.regles && el.condition.regles.length) {
           badges += "<span class=\"fr-badge fr-badge--sm fr-badge--purple-glycine\">Conditionnelle</span>";
         }
-        html += "<li class=\"ed-item" + (choisi ? " est-choisi" : "") + "\">" +
+        html += "<li class=\"ed-item" + (choisi ? " est-choisi" : "") + "\" draggable=\"true\" data-id=\"" + el.id + "\">" +
+          "<span class=\"ed-poignee\" aria-hidden=\"true\" title=\"Glisser pour déplacer\">⋮⋮</span>" +
           "<button type=\"button\" class=\"ed-choisir\" data-action=\"choisir-element\" data-id=\"" + el.id + "\">" +
           "<span class=\"ed-item__libelle\">" + esc(libelleElement(el)) + "</span>" +
           "<span class=\"ed-item__meta\">" + badges + "</span></button>" +
@@ -337,7 +385,11 @@
         return "<option value=\"new:" + t[0] + "\">" + esc(t[1]) + "</option>";
       }).join("") + "</optgroup></select>" +
         "<button type=\"button\" class=\"fr-btn fr-btn--sm fr-btn--secondary fr-icon-add-line fr-btn--icon-left\" data-action=\"ajouter-texte\" data-etape=\"" +
-        etape.id + "\">Texte</button></div>";
+        etape.id + "\">Texte</button>" +
+        "<button type=\"button\" class=\"fr-btn fr-btn--sm fr-btn--secondary fr-icon-add-line fr-btn--icon-left\" data-action=\"ajouter-matrice\" data-etape=\"" +
+        etape.id + "\">Tableau</button>" +
+        "<button type=\"button\" class=\"fr-btn fr-btn--sm fr-btn--secondary fr-icon-add-line fr-btn--icon-left\" data-action=\"ajouter-media\" data-etape=\"" +
+        etape.id + "\">Média</button></div>";
       html += "</div>";
     });
     html += "<button type=\"button\" class=\"fr-btn fr-btn--secondary fr-icon-add-line fr-btn--icon-left\" data-action=\"ajouter-etape\">Ajouter une étape</button>";
@@ -469,6 +521,38 @@
       if (obj.style !== "intertitre") {
         html += champTexte("texte", "Texte", obj.texte || "", { multiligne: true, lignes: 5, aide: "Une ligne vide sépare deux paragraphes. **gras** et [lien](https://…) acceptés." });
       }
+    } else if (obj.genre === "media") {
+      html += "<h2 class=\"fr-h5\">Média</h2>";
+      html += champSelect("type", "Type de média", obj.type || "image", TYPES_MEDIA);
+      html += champTexte("adresse", "Adresse du fichier", obj.adresse || "", {
+        type: "url",
+        aide: "Doit commencer par https://. Pour un fichier déposé dans Grist : adresse de téléchargement de la pièce jointe (le document doit être lisible publiquement)."
+      });
+      html += champTexte("titre", "Légende (facultatif)", obj.titre || "");
+      if ((obj.type || "image") === "image") {
+        html += champTexte("description", "Texte alternatif de l'image", obj.description || "", { aide: "Obligatoire : décrit l'image pour les personnes qui ne la voient pas." });
+      }
+      if (obj.type === "audio" || obj.type === "video") {
+        html += champTexte("transcription", "Transcription", obj.transcription || "", { multiligne: true, lignes: 5, aide: "Obligatoire pour l'accessibilité (RGAA). S'affiche dans un bloc repliable." });
+      }
+      if (obj.type === "pdf") {
+        html += champSelect("affichagePdf", "Présentation", obj.affichagePdf || "integre", [
+          ["integre", "Document affiché dans la page + lien de téléchargement"],
+          ["lien", "Lien de téléchargement seulement"]
+        ]);
+      }
+    } else if (obj.genre === "matrice") {
+      html += "<h2 class=\"fr-h5\">Tableau de choix</h2>";
+      html += "<p class=\"fr-text--sm\">Une réponse par ligne. Chaque ligne crée une colonne de choix dans la table Grist, à l'enregistrement.</p>";
+      html += champTexte("libelle", "Intitulé du tableau", obj.libelle || "");
+      html += champTexte("aide", "Texte d'aide", obj.aide || "");
+      html += champCase("obligatoire", "Une réponse par ligne obligatoire", !!obj.obligatoire);
+      html += champTexte("lignesTexte", "Lignes", (obj.lignes || []).map(function (l) { return l.libelle; }).join("\n"), {
+        multiligne: true, lignes: 4, aide: "Une ligne par sujet à évaluer."
+      });
+      html += champTexte("colonnesTexte", "Colonnes (réponses possibles)", (obj.colonnesChoix || []).join("\n"), {
+        multiligne: true, lignes: 4, aide: "Une réponse par ligne, par exemple : Pas d'accord, D'accord."
+      });
     } else {
       var type = typeElement(obj);
       var fam = M.famille(type);
@@ -482,7 +566,7 @@
         fam === "booleen" && obj.affichage !== "ouinon" ? "La case devra être cochée." : "S'applique seulement si la question est affichée.");
       var affichages = M.AFFICHAGES[fam] || [];
       if (affichages.length > 1) {
-        html += champSelect("affichage", "Présentation", obj.affichage || affichages[0][0], affichages);
+        html += champSelect("affichage", "Présentation", obj.affichage || M.affichageParDefaut(fam, type), affichages);
       }
       if (fam === "texte" && obj.affichage !== "long") {
         html += champTexte("indication", "Exemple de saisie (facultatif)", obj.indication || "", { aide: "Le DSFR recommande de placer l'exemple dans le texte d'aide." });
@@ -494,16 +578,46 @@
         html += champTexte("min", "Note la plus basse", obj.min === undefined ? "" : obj.min, { type: "number", aide: "Par défaut 1." });
         html += champTexte("max", "Note la plus haute", obj.max === undefined ? "" : obj.max, { type: "number", aide: "Par défaut 5. Onze notes au plus." });
         html += champTexte("libelleMin", "Sens de la note la plus basse (facultatif)", obj.libelleMin || "", { aide: "Par exemple : Pas du tout satisfait." });
+        html += champTexte("libelleCentre", "Sens de la note du milieu (facultatif)", obj.libelleCentre || "", { aide: "Affiché seulement si le nombre de notes est impair, par exemple : Neutre." });
         html += champTexte("libelleMax", "Sens de la note la plus haute (facultatif)", obj.libelleMax || "", { aide: "Par exemple : Tout à fait satisfait." });
       } else if (fam === "nombre") {
         html += champTexte("min", "Valeur minimale (facultatif)", obj.min === undefined ? "" : obj.min, { type: "number" });
         html += champTexte("max", "Valeur maximale (facultatif)", obj.max === undefined ? "" : obj.max, { type: "number" });
       }
       if (fam === "choix" || fam === "choix_multiple") {
-        html += champTexte("choix", "Choix proposés", choixElement(obj).join("\n"), {
+        html += champTexte("choix", "Choix proposés", choixAffiches(obj).join("\n"), {
           multiligne: true, lignes: 5,
           aide: "Un choix par ligne. À l'enregistrement, la liste de choix de la colonne Grist est mise à jour."
         });
+      }
+      var affiche = obj.affichage || M.affichageParDefaut(fam, type);
+      if ((fam === "choix_multiple" || fam === "ref_multiple") && affiche !== "classement") {
+        html += champTexte("choixMin", "Nombre minimal de choix (facultatif)", obj.choixMin || "", { type: "number", aide: "Par exemple 1." });
+        html += champTexte("choixMax", "Nombre maximal de choix (facultatif)", obj.choixMax || "", { type: "number", aide: "Par exemple 3 : la personne ne peut pas en cocher davantage." });
+      }
+      if ((fam === "choix" || fam === "choix_multiple") && affiche !== "classement") {
+        html += champCase("autre", "Ajouter un choix « Autre » avec précision", !!obj.autre,
+          "Un champ libre apparaît quand « Autre » est choisi ; la précision va dans une colonne Grist dédiée.");
+        if (obj.autre) { html += champTexte("libelleAutre", "Libellé du choix « Autre »", obj.libelleAutre || "", { aide: "Par défaut : Autre." }); }
+      }
+      if (fam === "choix" || fam === "choix_multiple" || fam === "ref" || fam === "ref_multiple") {
+        html += champCase("aleatoire", "Présenter les choix dans un ordre aléatoire", !!obj.aleatoire,
+          affiche === "classement" ? "L'ordre de départ change à chaque affichage." : "L'ordre change à chaque affichage, pour éviter de favoriser le premier choix.");
+      }
+      if (fam === "texte" || fam === "nombre" || fam === "date") {
+        html += champTexte("defaut", "Réponse par défaut (facultatif)", obj.defaut === undefined ? "" : obj.defaut, {
+          type: fam === "date" ? (affiche === "datetime" ? "datetime-local" : "date") : (affiche === "heure" ? "time" : (fam === "nombre" ? "number" : "text")),
+          aide: "Pré-remplit la réponse ; la personne peut la modifier."
+        });
+      } else if (fam === "choix") {
+        html += champSelect("defaut", "Réponse par défaut (facultatif)", obj.defaut || "", [["", "Aucune"]].concat(choixAffiches(obj).map(function (c) { return [c, c]; })));
+      } else if (fam === "choix_multiple") {
+        html += champTexte("defaut", "Réponses cochées par défaut (facultatif)", Array.isArray(obj.defaut) ? obj.defaut.join("\n") : (obj.defaut || ""), {
+          multiligne: true, lignes: 3,
+          aide: affiche === "classement" ? "Ordre de départ proposé, un choix par ligne." : "Un choix par ligne."
+        });
+      } else if (fam === "booleen") {
+        html += champCase("defaut", "Coché ou « Oui » par défaut", obj.defaut === true);
       }
       if (fam === "ref" || fam === "ref_multiple") {
         html += "<p class=\"fr-text--sm\">Les choix proviennent de la table liée dans Grist.</p>";
@@ -723,6 +837,7 @@
       var aAjouter = E.toutesColonnes.filter(function (c) {
         if (presentes[c.id]) { return false; }
         if (c.colId === M.NOM_COLONNE_CONFIG) { return true; }
+        if (colonnesCompagnes()[c.colId]) { return true; }
         var fam = M.famille(c.type);
         return utilisees[c.colId] && (fam === "ref" || fam === "ref_multiple");
       });
@@ -768,7 +883,13 @@
       if (nouvelles.length) {
         var res = await grist.docApi.applyUserActions(nouvelles.map(function (el) {
           var info = { type: el.aCreer.type, label: el.libelle || "Question" };
-          if (el.choix && el.choix.length) { info.widgetOptions = JSON.stringify({ choices: el.choix }); }
+          if (el.choix && el.choix.length) {
+            var lesChoix = el.choix.slice();
+            var libAutre = el.libelleAutre || M.LIBELLE_AUTRE;
+            if (el.autre && lesChoix.indexOf(libAutre) < 0) { lesChoix.push(libAutre); }
+            info.widgetOptions = JSON.stringify({ choices: lesChoix });
+          }
+          if (el.affichage === "lien") { info.widgetOptions = JSON.stringify({ widget: "HyperLink" }); }
           return ["AddColumn", E.tableId, sanitizerColId(el.libelle), info];
         }));
         nouvelles.forEach(function (el, i) {
@@ -777,6 +898,46 @@
           delete el.aCreer;
         });
       }
+
+      // 1b. Colonnes compagnes : précision du choix « Autre » et une colonne de choix par ligne de tableau.
+      var compagnes = [];
+      toutesQuestions().forEach(function (o) {
+        if (o.element.autre && o.element.colonne && !o.element.colonneAutre) { compagnes.push({ el: o.element }); }
+      });
+      M.elementsOrdonnes(E.config).forEach(function (o) {
+        if (o.element.genre !== "matrice") { return; }
+        (o.element.lignes || []).forEach(function (l) { if (!l.colonne) { compagnes.push({ m: o.element, l: l }); } });
+      });
+      if (compagnes.length) {
+        var resC = await grist.docApi.applyUserActions(compagnes.map(function (c) {
+          if (c.el) {
+            var nomQ = c.el.libelle || "Question";
+            return ["AddColumn", E.tableId, sanitizerColId(nomQ + " precision"), { type: "Text", label: nomQ + " (précision)" }];
+          }
+          var nomM = (c.m.libelle || "Tableau") + " - " + c.l.libelle;
+          return ["AddColumn", E.tableId, sanitizerColId(nomM), { type: "Choice", label: nomM, widgetOptions: JSON.stringify({ choices: c.m.colonnesChoix || [] }) }];
+        }));
+        compagnes.forEach(function (c, i) {
+          if (c.el) { c.el.colonneAutre = resC.retValues[i].colId; } else { c.l.colonne = resC.retValues[i].colId; }
+        });
+      }
+
+      // 1c. Les choix des colonnes existantes suivent le tableau (colonnes) et l'option « Autre ».
+      M.elementsOrdonnes(E.config).forEach(function (o) {
+        var el = o.element;
+        if (el.genre === "matrice") {
+          (el.lignes || []).forEach(function (l) {
+            var cc = colonne(l.colonne);
+            if (cc && JSON.stringify(json(cc.widgetOptions, {}).choices || []) !== JSON.stringify(el.colonnesChoix || [])) {
+              E.choixModifies[l.colonne] = (el.colonnesChoix || []).slice();
+            }
+          });
+        } else if (el.genre === "question" && el.autre && el.colonne && colonne(el.colonne)) {
+          var libA = el.libelleAutre || M.LIBELLE_AUTRE;
+          var base = (E.choixModifies[el.colonne] || json(colonne(el.colonne).widgetOptions, {}).choices || []).filter(function (x) { return x !== libA; });
+          E.choixModifies[el.colonne] = base.concat([libA]);
+        }
+      });
 
       // 2. Mettre à jour les listes de choix modifiées.
       var actions = [];
@@ -870,9 +1031,10 @@
       };
     } else {
       var p = valeur.slice(4).split("|");
+      var typeGrist = p[0] === "DateTime" ? "DateTime:Europe/Paris" : p[0];
       el = {
         id: M.nouvelId("q"), genre: "question", colonne: null, libelle: "Nouvelle question",
-        aide: "", obligatoire: false, type: p[0], affichage: p[1], aCreer: { type: p[0] }
+        aide: "", obligatoire: false, type: typeGrist, affichage: p[1], aCreer: { type: typeGrist }
       };
       if (p[0] === "Choice" || p[0] === "ChoiceList") { el.choix = ["Option 1", "Option 2"]; }
     }
@@ -922,6 +1084,22 @@
         et.elements = et.elements || [];
         et.elements.push(t);
         E.selection = { type: "element", id: t.id };
+        break;
+      case "ajouter-matrice":
+        var em = trouverEtape(b.getAttribute("data-etape"));
+        var mx = { id: M.nouvelId("m"), genre: "matrice", libelle: "Nouveau tableau", aide: "", obligatoire: false,
+          lignes: [{ libelle: "Ligne 1", colonne: null }, { libelle: "Ligne 2", colonne: null }],
+          colonnesChoix: ["Pas d'accord", "D'accord"], condition: null };
+        em.elements = em.elements || [];
+        em.elements.push(mx);
+        E.selection = { type: "element", id: mx.id };
+        break;
+      case "ajouter-media":
+        var ei = trouverEtape(b.getAttribute("data-etape"));
+        var md = { id: M.nouvelId("i"), genre: "media", type: "image", adresse: "", titre: "", description: "", condition: null };
+        ei.elements = ei.elements || [];
+        ei.elements.push(md);
+        E.selection = { type: "element", id: md.id };
         break;
       case "ajouter-etape":
         var n = { id: M.nouvelId("e"), titre: "Nouvelle étape", description: "", condition: null, elements: [] };
@@ -1080,15 +1258,107 @@
       var liste = valeur.split("\n").map(function (s) { return s.trim(); }).filter(Boolean);
       if (o.colonne && !o.aCreer) { E.choixModifies[o.colonne] = liste; }
       o.choix = liste;
-    } else if (["min", "max", "longueurMax"].indexOf(prop) >= 0) {
+    } else if (prop === "lignesTexte") {
+      var libs = valeur.split("\n").map(function (x) { return x.trim(); }).filter(Boolean);
+      var anciennes = o.lignes || [], parLibelle = {}, prises = {};
+      anciennes.forEach(function (l) { parLibelle[l.libelle] = l; });
+      var nouvelles = libs.map(function (t, i) {
+        var l = parLibelle[t];
+        if (l && !prises[t]) { prises[t] = true; return l; }
+        var vieille = anciennes[i];
+        if (vieille && libs.indexOf(vieille.libelle) < 0 && vieille.colonne) { return { libelle: t, colonne: vieille.colonne }; }
+        return { libelle: t, colonne: null };
+      });
+      o.lignes = nouvelles;
+    } else if (prop === "colonnesTexte") {
+      o.colonnesChoix = valeur.split("\n").map(function (x) { return x.trim(); }).filter(Boolean);
+    } else if (["min", "max", "longueurMax", "choixMin", "choixMax"].indexOf(prop) >= 0) {
       if (valeur === "") { delete o[prop]; } else { o[prop] = Number(valeur); }
     } else {
       o[prop] = valeur;
     }
     marquerModifie(true);
-    rafraichirStructure();
-    if (finale && (t.tagName === "SELECT" || t.type === "checkbox")) { rafraichirProprietes(); }
+    if (t.tagName === "SELECT" || t.type === "checkbox") {
+      rafraichirStructure();
+      if (finale) { rafraichirProprietes(); }
+    } else {
+      // Saisie de texte : on ne remplace que l'intitulé, pour ne pas perdre un clic en cours sur un bouton voisin.
+      var libelleListe = document.querySelector(".ed-item.est-choisi .ed-item__libelle");
+      if (libelleListe) { libelleListe.textContent = libelleElement(o); }
+    }
   }
+
+  /* ---------- Glisser-déposer des éléments ---------- */
+
+  // En complément des boutons Monter / Descendre : on prend un élément avec la souris et on le dépose
+  // avant ou après un autre, ou dans une étape vide.
+  var glisse = null;
+
+  function effacerRepereDepot() {
+    Array.prototype.forEach.call(document.querySelectorAll(".depot-avant, .depot-apres, .depot-fin"), function (n) {
+      n.classList.remove("depot-avant", "depot-apres", "depot-fin");
+    });
+  }
+
+  document.addEventListener("dragstart", function (ev) {
+    var li = ev.target.closest && ev.target.closest("li.ed-item");
+    if (!li) { return; }
+    glisse = li.getAttribute("data-id");
+    li.classList.add("est-glisse");
+    if (ev.dataTransfer) { ev.dataTransfer.effectAllowed = "move"; ev.dataTransfer.setData("text/plain", glisse); }
+  });
+  document.addEventListener("dragover", function (ev) {
+    if (!glisse) { return; }
+    var li = ev.target.closest && ev.target.closest("li.ed-item");
+    var etape = ev.target.closest && ev.target.closest(".ed-etape");
+    if (!li && !etape) { return; }
+    ev.preventDefault();
+    effacerRepereDepot();
+    if (li && li.getAttribute("data-id") !== glisse) {
+      var r = li.getBoundingClientRect();
+      li.classList.add(ev.clientY > r.top + r.height / 2 ? "depot-apres" : "depot-avant");
+    } else if (!li) {
+      etape.classList.add("depot-fin");
+    }
+  });
+  document.addEventListener("drop", function (ev) {
+    if (!glisse) { return; }
+    var li = ev.target.closest && ev.target.closest("li.ed-item");
+    var etape = ev.target.closest && ev.target.closest(".ed-etape");
+    if (!li && !etape) { return; }
+    ev.preventDefault();
+    var id = glisse;
+    var source = etapeDeLElement(id);
+    var el = M.trouverElement(E.config, id);
+    if (!source || !el) { return; }
+    var destEtape, position;
+    if (li && li.getAttribute("data-id") !== id) {
+      var cibleId = li.getAttribute("data-id");
+      destEtape = etapeDeLElement(cibleId);
+      var r = li.getBoundingClientRect();
+      source.elements.splice(source.elements.indexOf(el), 1);
+      position = destEtape.elements.findIndex(function (x) { return x.id === cibleId; }) + (ev.clientY > r.top + r.height / 2 ? 1 : 0);
+      destEtape.elements.splice(position, 0, el);
+    } else if (!li) {
+      destEtape = trouverEtape(etape.getAttribute("data-etape"));
+      source.elements.splice(source.elements.indexOf(el), 1);
+      destEtape.elements = destEtape.elements || [];
+      destEtape.elements.push(el);
+    } else {
+      return;
+    }
+    E.selection = { type: "element", id: id };
+    marquerModifie(true);
+    rafraichirStructure();
+    rafraichirProprietes();
+    var libelle = libelleElement(el);
+    message("info", "« " + libelle + " » déplacé. Vérifiez les conditions qui en dépendent.");
+  });
+  document.addEventListener("dragend", function () {
+    glisse = null;
+    effacerRepereDepot();
+    Array.prototype.forEach.call(document.querySelectorAll(".est-glisse"), function (n) { n.classList.remove("est-glisse"); });
+  });
 
   /* ---------- Affichage général ---------- */
 

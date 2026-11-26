@@ -65,16 +65,252 @@
     return h("div", { class: "fr-messages-group", id: id + "-messages", "aria-live": "polite" });
   }
 
+  /* ---------- Outils des questions ---------- */
+
+  // Nombre minimal et maximal de choix ; null quand aucune borne n'est réglée.
+  function bornesChoix(el) {
+    var b = Number(el.choixMin) > 0 ? Math.round(Number(el.choixMin)) : 0;
+    var t = Number(el.choixMax) > 0 ? Math.round(Number(el.choixMax)) : 0;
+    return (b || t) ? { min: b, max: t } : null;
+  }
+
+  function texteBornes(b) {
+    var pluriel = function (n) { return n + " réponse" + (n > 1 ? "s" : ""); };
+    if (b.min && b.max) { return b.min === b.max ? "Sélectionnez exactement " + pluriel(b.min) + "." : "Sélectionnez entre " + b.min + " et " + pluriel(b.max) + "."; }
+    if (b.min) { return "Sélectionnez au moins " + pluriel(b.min) + "."; }
+    return "Sélectionnez au plus " + pluriel(b.max) + ".";
+  }
+
+  function listeDefaut(el) {
+    var d = el.defaut;
+    if (Array.isArray(d)) { return d; }
+    return String(d === undefined || d === null ? "" : d).split("\n").map(function (x) { return x.trim(); }).filter(Boolean);
+  }
+
+  /* ---------- Classement par ordre ---------- */
+
+  // Liste d'éléments à ordonner : boutons Monter et Descendre (clavier, tactile) et glisser-déposer à la souris.
+  // La réponse est la liste ordonnée complète, enregistrée dans une seule cellule (liste de choix de Grist).
+  function construireClassement(el, fam, id, choix, refValues, fieldset, q) {
+    var elements = fam === "choix_multiple" ?
+      choix.map(function (c) { return { valeur: c, texte: c }; }) :
+      refValues.map(function (r) { return { valeur: r[0], texte: String(r[1]) }; });
+    var touche = false;
+    if (el.defaut) {
+      var ordre = listeDefaut(el);
+      elements.sort(function (a, b) {
+        var i = ordre.indexOf(String(a.texte)), j = ordre.indexOf(String(b.texte));
+        return (i < 0 ? 999 : i) - (j < 0 ? 999 : j);
+      });
+      touche = true;
+    }
+    var liste = h("ol", { class: "qd-classement", id: id + "-liste" });
+    var statut = h("p", { class: "fr-sr-only", role: "status", "aria-live": "polite" });
+    var garder = h("button", { type: "button", class: "fr-btn fr-btn--secondary fr-btn--sm qd-garder", text: "Garder cet ordre" });
+    var noeud;
+
+    function diffuser() { noeud.dispatchEvent(new Event("change", { bubbles: true })); }
+    function numeroter() {
+      var n = liste.children.length;
+      Array.prototype.forEach.call(liste.children, function (li, i) {
+        li.querySelector(".qd-rang").textContent = String(i + 1);
+        li.querySelector("[data-sens=\"-1\"]").disabled = i === 0;
+        li.querySelector("[data-sens=\"1\"]").disabled = i === n - 1;
+      });
+    }
+    function marquer() { touche = true; garder.hidden = true; }
+    function annoncer(li) {
+      var rang = Array.prototype.indexOf.call(liste.children, li) + 1;
+      statut.textContent = li.getAttribute("data-texte") + " : position " + rang + " sur " + liste.children.length + ".";
+    }
+    function deplacer(li, sens) {
+      var ref = sens < 0 ? li.previousElementSibling : (li.nextElementSibling && li.nextElementSibling.nextElementSibling);
+      if (sens < 0 && !ref) { return; }
+      if (sens > 0 && !li.nextElementSibling) { return; }
+      liste.insertBefore(li, ref);
+      marquer(); numeroter(); annoncer(li);
+      var bouton = li.querySelector("[data-sens=\"" + sens + "\"]");
+      if (bouton.disabled) { bouton = li.querySelector("[data-sens=\"" + (-sens) + "\"]"); }
+      bouton.focus();
+      diffuser();
+    }
+    function bouton(sens, icone, texte, li) {
+      return h("button", {
+        type: "button", class: "fr-btn fr-btn--tertiary-no-outline fr-btn--sm " + icone,
+        "data-sens": String(sens), title: texte, text: texte, onclick: function () { deplacer(li, sens); }
+      });
+    }
+    elements.forEach(function (e) {
+      var li = h("li", { class: "qd-classement__item", draggable: "true", "data-valeur": String(e.valeur), "data-texte": e.texte });
+      [h("span", { class: "qd-rang", "aria-hidden": "true" }),
+       h("span", { class: "qd-classement__texte", text: e.texte }),
+       h("span", { class: "qd-classement__boutons" }, [
+         bouton(-1, "fr-icon-arrow-up-line", "Monter « " + e.texte + " »", li),
+         bouton(1, "fr-icon-arrow-down-line", "Descendre « " + e.texte + " »", li)])
+      ].forEach(function (n) { li.appendChild(n); });
+      liste.appendChild(li);
+    });
+
+    var glisse = null;
+    liste.addEventListener("dragstart", function (ev) {
+      var li = ev.target.closest && ev.target.closest("li");
+      if (!li) { return; }
+      glisse = li;
+      li.classList.add("qd-glisse");
+      if (ev.dataTransfer) { ev.dataTransfer.effectAllowed = "move"; ev.dataTransfer.setData("text/plain", li.getAttribute("data-texte")); }
+    });
+    liste.addEventListener("dragover", function (ev) {
+      if (!glisse) { return; }
+      ev.preventDefault();
+      var li = ev.target.closest && ev.target.closest("li");
+      if (!li || li === glisse) { return; }
+      var r = li.getBoundingClientRect();
+      liste.insertBefore(glisse, ev.clientY > r.top + r.height / 2 ? li.nextElementSibling : li);
+    });
+    liste.addEventListener("drop", function (ev) { if (glisse) { ev.preventDefault(); } });
+    liste.addEventListener("dragend", function () {
+      if (!glisse) { return; }
+      glisse.classList.remove("qd-glisse");
+      var li = glisse; glisse = null;
+      marquer(); numeroter(); annoncer(li); diffuser();
+    });
+    garder.addEventListener("click", function () { marquer(); statut.textContent = "Ordre conservé."; diffuser(); });
+    if (touche) { garder.hidden = true; }
+
+    var aide = h("p", { class: "fr-hint-text qd-classement__aide", text: "Classez du premier au dernier : déplacez les éléments avec la souris ou avec les boutons." });
+    noeud = fieldset([aide, liste, garder, statut], false);
+    numeroter();
+    q.focus = function () { var b = liste.querySelector("button:not([disabled])"); if (b) { b.focus(); } };
+    q.lire = function () {
+      if (!touche) { return null; }
+      return Array.prototype.map.call(liste.children, function (li) {
+        var v = li.getAttribute("data-valeur");
+        return fam === "ref_multiple" ? Number(v) : v;
+      });
+    };
+    q.lirePourCondition = function () {
+      if (!touche) { return null; }
+      return Array.prototype.map.call(liste.children, function (li) { return li.getAttribute("data-texte"); });
+    };
+    return noeud;
+  }
+
+  /* ---------- Tableau de choix (matrice) ---------- */
+
+  // Une ligne par sujet, une colonne par choix : une réponse par ligne, enregistrée dans une colonne Grist par ligne.
+  function construireMatrice(el, options) {
+    var id = "q-" + el.id;
+    var lignes = el.lignes || [], colonnes = el.colonnesChoix || [];
+    var mention = options.mentionObligatoire || "asterisque";
+    var obligatoire = !!el.obligatoire;
+    var enteteLegende = [el.libelle || "Tableau"];
+    if (obligatoire && mention === "asterisque") { enteteLegende.push(h("span", { class: "qd-obligatoire", "aria-hidden": "true", text: " *" })); }
+    if (!obligatoire && mention === "facultatif") { enteteLegende.push(" (facultatif)"); }
+    if (el.aide) { enteteLegende.push(h("span", { class: "fr-hint-text", text: el.aide })); }
+
+    var tete = h("tr", {}, [h("td", { class: "qd-matrice__coin" }, [h("span", { class: "fr-sr-only", text: "Sujet" })])]
+      .concat(colonnes.map(function (c) { return h("th", { scope: "col", text: c }); })));
+    var corps = lignes.map(function (l, i) {
+      return h("tr", {}, [h("th", { scope: "row", text: l.libelle })].concat(colonnes.map(function (c, j) {
+        var rid = id + "-" + i + "-" + j;
+        return h("td", {}, [h("div", { class: "fr-radio-group fr-radio-group--sm qd-matrice__radio" }, [
+          h("input", { type: "radio", id: rid, name: id + "-" + i, value: c }),
+          h("label", { class: "fr-label", for: rid }, [h("span", { class: "fr-sr-only", text: l.libelle + " : " + c })])
+        ])]);
+      })));
+    });
+    var tableau = h("div", { class: "qd-matrice-cadre" }, [
+      h("table", { class: "qd-matrice" }, [
+        h("caption", { class: "fr-sr-only", text: el.libelle || "Tableau" }),
+        h("thead", {}, [tete]),
+        h("tbody", {}, corps)
+      ])
+    ]);
+    var fs = h("fieldset", { class: "fr-fieldset", id: id + "-groupe", "aria-labelledby": id + "-legende " + id + "-messages" }, [
+      h("legend", { class: "fr-fieldset__legend fr-fieldset__legend--regular", id: id + "-legende" }, enteteLegende),
+      h("div", { class: "fr-fieldset__element" }, [tableau]),
+      messages(id)
+    ]);
+    if (obligatoire) { fs.setAttribute("aria-required", "true"); }
+
+    function lireMatrice() {
+      var res = {};
+      lignes.forEach(function (l, i) {
+        var c = fs.querySelector("input[name=\"" + id + "-" + i + "\"]:checked");
+        if (c) { res[l.colonne || ("ligne" + i)] = c.value; }
+      });
+      return res;
+    }
+    var q = {
+      element: el, famille: "matrice", id: id, conteneur: fs,
+      lireMatrice: lireMatrice,
+      lire: function () { var r = lireMatrice(); return Object.keys(r).length ? r : null; },
+      lirePourCondition: function () { return null; },
+      complet: function () { return Object.keys(lireMatrice()).length === lignes.length; },
+      focus: function () { var i = fs.querySelector("input"); if (i) { i.focus(); } },
+      afficherErreur: function (msg) {
+        fs.classList.add("fr-fieldset--error");
+        fs.querySelector(".fr-messages-group").innerHTML = "<p class=\"fr-message fr-message--error\">" + echapper(msg) + "</p>";
+      },
+      effacerErreur: function () {
+        fs.classList.remove("fr-fieldset--error");
+        fs.querySelector(".fr-messages-group").innerHTML = "";
+      }
+    };
+    q.noeud = h("div", { class: "qd-element", "data-element": el.id }, [fs]);
+    return q;
+  }
+
+  /* ---------- Média (image, audio, vidéo, PDF) ---------- */
+
+  // L'adresse doit commencer par https:// ; sinon rien n'est affiché (sauf un avertissement dans l'aperçu).
+  function construireMedia(el, options) {
+    var url = M.adresseSure(el.adresse);
+    var noeud = null;
+    var transcription = el.transcription ? h("details", { class: "qd-transcription" }, [
+      h("summary", { text: "Transcription" }),
+      h("div", { html: formater(el.transcription) })
+    ]) : null;
+    var legende = el.titre ? h("p", { class: "fr-text--sm qd-media__legende", text: el.titre }) : null;
+    if (!url) {
+      if (options.apercu) {
+        noeud = h("div", { class: "fr-alert fr-alert--warning fr-alert--sm" }, [h("p", { text: "Média non affiché : l'adresse doit commencer par https://." })]);
+      }
+    } else if (el.type === "image") {
+      noeud = h("figure", { class: "fr-content-media qd-media" }, [
+        h("div", { class: "fr-content-media__img" }, [h("img", { class: "fr-responsive-img", src: url, alt: el.description || "", loading: "lazy" })]),
+        el.titre ? h("figcaption", { class: "fr-content-media__caption", text: el.titre }) : null
+      ]);
+    } else if (el.type === "audio") {
+      noeud = h("div", { class: "qd-media" }, [legende, h("audio", { controls: true, preload: "none", src: url }), transcription]);
+    } else if (el.type === "video") {
+      noeud = h("div", { class: "qd-media" }, [legende, h("video", { controls: true, preload: "metadata", playsinline: true, src: url, class: "qd-video" }), transcription]);
+    } else if (el.type === "pdf") {
+      noeud = h("div", { class: "qd-media" }, [
+        legende,
+        el.affichagePdf === "lien" ? null : h("iframe", { class: "qd-pdf", src: url, title: el.titre || "Document PDF", loading: "lazy" }),
+        h("a", { class: "fr-link fr-icon-download-line fr-link--icon-left", href: url, target: "_blank", rel: "noopener",
+          text: "Ouvrir ou télécharger le document" + (el.titre ? " : " + el.titre : "") + " (nouvelle fenêtre)" })
+      ]);
+    }
+    return noeud ? h("div", { class: "qd-element", "data-element": el.id }, [noeud]) : null;
+  }
+
   /* ---------- Construction d'une question ---------- */
 
   function construireQuestion(el, champ, options, compteur) {
     var fam = M.famille(champ.type);
     var id = "q-" + el.id;
-    var affichage = el.affichage || (M.AFFICHAGES[fam] || [[""]])[0][0];
+    var affichage = el.affichage || M.affichageParDefaut(fam, champ.type);
     var obligatoire = !!el.obligatoire;
     var mention = options.mentionObligatoire || "asterisque";
-    var choix = champ.choix || el.choix || [];
+    var LIB_AUTRE = el.libelleAutre || M.LIBELLE_AUTRE;
+    var avecAutre = !!el.autre && (fam === "choix" || fam === "choix_multiple");
+    var choix = (champ.choix || el.choix || []).filter(function (c) { return !(avecAutre && c === LIB_AUTRE); });
     var refValues = champ.refValues || [];
+    var bornes = ((fam === "choix_multiple" || fam === "ref_multiple") && affichage !== "classement") ? bornesChoix(el) : null;
+    if (el.aleatoire) { choix = M.melanger(choix); refValues = M.melanger(refValues); }
+    var champAutre = null;
 
     function libelle(tag, attrs) {
       var enfants = [el.libelle || el.colonne];
@@ -84,7 +320,8 @@
       if (!obligatoire && mention === "facultatif") {
         enfants.push(" (facultatif)");
       }
-      if (el.aide) { enfants.push(h("span", { class: "fr-hint-text", text: el.aide })); }
+      var aide = [el.aide, bornes && texteBornes(bornes)].filter(Boolean).join(" ");
+      if (aide) { enfants.push(h("span", { class: "fr-hint-text", text: aide })); }
       return h(tag, attrs, enfants);
     }
 
@@ -172,6 +409,25 @@
       ]);
     }
 
+    q.affichage = affichage;
+
+    // Option « Autre » : un champ de précision qui apparaît quand elle est choisie.
+    function zoneAutre(estChoisi) {
+      champAutre = h("input", { class: "fr-input", type: "text", id: id + "-autre", name: id + "-autre", maxlength: "200", autocomplete: "off" });
+      var groupe = h("div", { class: "fr-input-group qd-autre", hidden: true }, [
+        h("label", { class: "fr-label", for: id + "-autre", text: "Précisez" }), champAutre
+      ]);
+      var maj = function () { if (estChoisi()) { groupe.removeAttribute("hidden"); } else { groupe.setAttribute("hidden", ""); } };
+      q.autreChoisi = estChoisi;
+      q.lireAutre = function () { var v = champAutre.value.trim(); return v || null; };
+      return { groupe: groupe, maj: maj };
+    }
+    function brancherAutre(za, noeudCible, evenementSur) {
+      noeudCible.insertBefore(za.groupe, noeudCible.querySelector(".fr-messages-group"));
+      evenementSur.addEventListener("change", za.maj);
+      za.maj();
+    }
+
     var noeud;
 
     if (fam === "nombre" && affichage === "echelle") {
@@ -180,10 +436,14 @@
         var texteNote = String(n);
         if (n === bas && el.libelleMin) { texteNote += " – " + el.libelleMin; }
         if (n === haut && el.libelleMax) { texteNote += " – " + el.libelleMax; }
+        if (el.libelleCentre && (haut - bas) % 2 === 0 && haut > bas && n === bas + (haut - bas) / 2) { texteNote += " – " + el.libelleCentre; }
         notes.push(radio(id, String(n), texteNote, n - bas));
       }
       noeud = fieldset(notes, true);
       noeud.classList.add("q-echelle");
+      if (el.defaut !== undefined && el.defaut !== null && el.defaut !== "") {
+        Array.prototype.forEach.call(noeud.querySelectorAll("input"), function (i) { if (i.value === String(el.defaut)) { i.checked = true; } });
+      }
       q.lire = function () {
         var c = noeud.querySelector("input:checked");
         return c ? Number(c.value) : null;
@@ -197,12 +457,15 @@
       } else {
         var type = "text", extra = {};
         if (fam === "nombre") { type = "text"; extra.inputmode = champ.type === "Int" ? "numeric" : "decimal"; }
-        if (fam === "date") { type = "date"; }
+        if (fam === "date") { type = affichage === "datetime" ? "datetime-local" : "date"; }
+        if (affichage === "lien") { type = "url"; extra.autocomplete = "url"; extra.spellcheck = "false"; extra.inputmode = "url"; }
+        if (affichage === "heure") { type = "time"; }
         if (affichage === "courriel") { type = "email"; extra.autocomplete = "email"; extra.spellcheck = "false"; }
         if (affichage === "telephone") { type = "tel"; extra.autocomplete = "tel"; }
         controle = h("input", Object.assign({ class: "fr-input", type: type, id: id, name: id }, extra));
       }
       if (el.indication) { controle.setAttribute("placeholder", el.indication); }
+      if (el.defaut !== undefined && el.defaut !== null && el.defaut !== "") { controle.value = String(el.defaut); }
       if (fam === "texte" && el.longueurMax) { controle.setAttribute("maxlength", String(el.longueurMax)); }
       if (obligatoire) { controle.setAttribute("aria-required", "true"); }
       noeud = groupeSimple("fr-input-group", controle);
@@ -215,16 +478,21 @@
         }
         return v;
       };
+      if (fam === "date" && affichage === "datetime") {
+        q.lirePourCondition = function () { var v = q.lire(); return v ? String(v).slice(0, 10) : null; };
+      }
     }
 
     else if ((fam === "choix" || fam === "ref") && affichage === "liste") {
       var select = h("select", { class: "fr-select", id: id, name: id },
         [h("option", { value: "", selected: true, text: "Sélectionner une option" })]
           .concat(fam === "choix" ?
-            choix.map(function (c) { return h("option", { value: c, text: c }); }) :
+            choix.concat(avecAutre ? [LIB_AUTRE] : []).map(function (c) { return h("option", { value: c, text: c }); }) :
             refValues.map(function (r) { return h("option", { value: String(r[0]), text: String(r[1]) }); })));
       if (obligatoire) { select.setAttribute("aria-required", "true"); }
+      if (fam === "choix" && el.defaut) { select.value = String(el.defaut); if (select.value !== String(el.defaut)) { select.value = ""; } }
       noeud = groupeSimple("fr-select-group", select);
+      if (avecAutre) { brancherAutre(zoneAutre(function () { return select.value === LIB_AUTRE; }), noeud, select); }
       q.lire = function () {
         if (!select.value) { return null; }
         return fam === "ref" ? Number(select.value) : select.value;
@@ -240,7 +508,14 @@
       var items = fam === "choix" ?
         choix.map(function (c, i) { return radio(id, c, c, i); }) :
         refValues.map(function (r, i) { return radio(id, String(r[0]), String(r[1]), i); });
+      if (avecAutre) { items.push(radio(id, LIB_AUTRE, LIB_AUTRE, "autre")); }
       noeud = fieldset(items, false);
+      if (fam === "choix" && el.defaut) {
+        Array.prototype.forEach.call(noeud.querySelectorAll("input"), function (i) { if (i.value === String(el.defaut)) { i.checked = true; } });
+      }
+      if (avecAutre) {
+        brancherAutre(zoneAutre(function () { var c = noeud.querySelector("input:checked"); return !!c && c.value === LIB_AUTRE; }), noeud, noeud);
+      }
       q.lire = function () {
         var c = noeud.querySelector("input:checked");
         if (!c) { return null; }
@@ -254,11 +529,25 @@
       }
     }
 
+    else if ((fam === "choix_multiple" || fam === "ref_multiple") && affichage === "classement") {
+      noeud = construireClassement(el, fam, id, choix, refValues, fieldset, q);
+    }
+
     else if (fam === "choix_multiple" || fam === "ref_multiple") {
       var cases = fam === "choix_multiple" ?
         choix.map(function (c, i) { return caseACocher(id, c, c, i); }) :
         refValues.map(function (r, i) { return caseACocher(id, String(r[0]), String(r[1]), i); });
+      if (avecAutre) { cases.push(caseACocher(id, LIB_AUTRE, LIB_AUTRE, "autre")); }
       noeud = fieldset(cases, false);
+      if (fam === "choix_multiple" && el.defaut) {
+        var parDefaut = listeDefaut(el);
+        Array.prototype.forEach.call(noeud.querySelectorAll("input"), function (i) { if (parDefaut.indexOf(i.value) >= 0) { i.checked = true; } });
+      }
+      if (avecAutre) {
+        brancherAutre(zoneAutre(function () {
+          return Array.prototype.some.call(noeud.querySelectorAll("input:checked"), function (c) { return c.value === LIB_AUTRE; });
+        }), noeud, noeud);
+      }
       q.lire = function () {
         var vals = Array.prototype.map.call(noeud.querySelectorAll("input:checked"), function (c) {
           return fam === "ref_multiple" ? Number(c.value) : c.value;
@@ -276,6 +565,7 @@
 
     else if (fam === "booleen" && affichage === "ouinon") {
       noeud = fieldset([radio(id, "oui", "Oui", "oui"), radio(id, "non", "Non", "non")], true);
+      if (el.defaut === true) { noeud.querySelector("input[value=oui]").checked = true; }
       q.lire = function () {
         var c = noeud.querySelector("input:checked");
         return c ? c.value === "oui" : null;
@@ -284,6 +574,7 @@
 
     else if (fam === "booleen" && affichage === "interrupteur") {
       var inter = h("input", { type: "checkbox", class: "fr-toggle__input", id: id, name: id, "aria-describedby": id + "-messages" });
+      if (el.defaut === true) { inter.checked = true; }
       noeud = h("div", { class: "fr-toggle", id: id + "-groupe" }, [
         inter,
         libelle("label", { class: "fr-toggle__label", for: id, "data-fr-checked-label": "Oui", "data-fr-unchecked-label": "Non" }),
@@ -300,6 +591,7 @@
 
     else if (fam === "booleen") {
       var coche = h("input", { type: "checkbox", id: id, name: id, "aria-describedby": id + "-messages" });
+      if (el.defaut === true) { coche.checked = true; }
       if (obligatoire) { coche.setAttribute("aria-required", "true"); }
       noeud = h("div", { class: "fr-checkbox-group", id: id + "-groupe" }, [
         coche,
@@ -354,11 +646,15 @@
     var el = q.element;
     var v = q.lire();
     var fam = q.famille;
+    if (fam === "matrice") {
+      return el.obligatoire && !q.complet() ? "Répondez à chaque ligne du tableau." : null;
+    }
     if (el.obligatoire) {
       if (fam === "booleen" && el.affichage !== "ouinon") {
         if (v !== true) { return "Cochez la case pour continuer."; }
       } else if (M.estVide(v)) {
         if (fam === "choix" || fam === "ref" || fam === "booleen") { return "Sélectionnez une réponse."; }
+        if (el.affichage === "classement") { return "Classez les éléments : déplacez-en un ou cliquez sur « Garder cet ordre »."; }
         if (fam === "choix_multiple" || fam === "ref_multiple") { return "Sélectionnez au moins une réponse."; }
         if (fam === "fichier") { return "Ajoutez au moins un fichier."; }
         if (fam === "date") { return "Saisissez une date."; }
@@ -366,6 +662,14 @@
       }
     }
     if (M.estVide(v)) { return null; }
+    if (q.autreChoisi && q.autreChoisi() && !q.lireAutre()) { return "Précisez votre réponse dans le champ « Précisez »."; }
+    if ((fam === "choix_multiple" || fam === "ref_multiple") && el.affichage !== "classement" && Array.isArray(v)) {
+      var bn = bornesChoix(el);
+      if (bn && ((bn.min && v.length < bn.min) || (bn.max && v.length > bn.max))) { return texteBornes(bn); }
+    }
+    if (fam === "texte" && el.affichage === "lien" && !/^https?:\/\/\S+\.\S+$/i.test(v)) {
+      return "Saisissez une adresse web complète, par exemple : https://exemple.fr";
+    }
     if (fam === "texte" && el.affichage === "courriel" && !RE_COURRIEL.test(v)) {
       return "Saisissez une adresse électronique valide, par exemple : nom@domaine.fr";
     }
@@ -384,6 +688,10 @@
 
   function versGrist(q, v, typeGrist) {
     var fam = q.famille;
+    if (fam === "date" && q.affichage === "datetime") {
+      var instant = Date.parse(String(v));
+      return isNaN(instant) ? v : Math.round(instant / 1000);
+    }
     if (fam === "date") {
       var p = String(v).split("-");
       return Date.UTC(Number(p[0]), Number(p[1]) - 1, Number(p[2])) / 1000;
@@ -410,7 +718,7 @@
     var titre = h("h1", { class: "qd-titre", text: config.titre || "Questionnaire" });
     var intro = config.introduction ? h("div", { class: "fr-text--lead qd-intro", html: formater(config.introduction) }) : null;
     var phraseObligatoire = null;
-    var auMoinsUnObligatoire = M.elementsOrdonnes(config).some(function (o) { return o.element.genre === "question" && o.element.obligatoire; });
+    var auMoinsUnObligatoire = M.elementsOrdonnes(config).some(function (o) { return (o.element.genre === "question" || o.element.genre === "matrice") && o.element.obligatoire; });
     if (mention === "asterisque" && auMoinsUnObligatoire) {
       phraseObligatoire = h("p", { class: "fr-text--sm qd-mention", text: "Les champs marqués d'un astérisque (*) sont obligatoires." });
     } else if (mention === "facultatif") {
@@ -437,6 +745,13 @@
           q.typeGrist = champ.type || el.type;
           questions[el.id] = q;
           section.appendChild(q.noeud);
+        } else if (el.genre === "matrice") {
+          var qm = construireMatrice(el, { mentionObligatoire: mention });
+          questions[el.id] = qm;
+          section.appendChild(qm.noeud);
+        } else if (el.genre === "media") {
+          var blocMedia = construireMedia(el, { apercu: !!options.apercu });
+          if (blocMedia) { section.appendChild(blocMedia); }
         } else if (el.genre === "texte") {
           var bloc;
           if (el.style === "encadre") {
@@ -560,7 +875,7 @@
     function questionsDeLEtape(idEtape) {
       var etape = etapes.find(function (e) { return e.id === idEtape; });
       return (etape && etape.elements || []).filter(function (el) {
-        return el.genre === "question" && visibilite.elements[el.id];
+        return (el.genre === "question" || el.genre === "matrice") && visibilite.elements[el.id];
       }).map(function (el) { return questions[el.id]; });
     }
 
@@ -601,11 +916,20 @@
       Object.keys(questions).forEach(function (id) {
         if (!visibilite.elements[id]) { return; }
         var q = questions[id];
+        if (q.famille === "matrice") {
+          var rep = q.lireMatrice();
+          Object.keys(rep).forEach(function (c) { champsGrist[c] = rep[c]; });
+          return;
+        }
         var v = q.lire();
         if (M.estVide(v)) { return; }
         if (q.famille === "booleen" && v === false && q.element.affichage !== "ouinon") { return; }
         if (q.famille === "fichier") { fichiers[q.element.colonne] = v; return; }
         champsGrist[q.element.colonne] = versGrist(q, v, q.typeGrist);
+        if (q.autreChoisi && q.autreChoisi() && q.element.colonneAutre) {
+          var precision = q.lireAutre();
+          if (precision) { champsGrist[q.element.colonneAutre] = precision; }
+        }
       });
       return { champs: champsGrist, fichiers: fichiers };
     }
