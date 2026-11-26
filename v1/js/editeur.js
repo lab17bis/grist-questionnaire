@@ -41,9 +41,11 @@
     ["ChoiceList|cases", "Choix multiples"],
     ["ChoiceList|classement", "Classement par ordre"],
     ["Bool|ouinon", "Oui / Non"],
-    ["Bool|case", "Case à cocher (accord)"],
-    ["Attachments|fichier", "Fichiers joints"]
+    ["Bool|case", "Case à cocher (accord)"]
   ];
+
+  // Grist refuse les fichiers déposés par une personne anonyme : ces colonnes ne sont pas proposées.
+  function estFichier(c) { return M.famille(c.type) === "fichier"; }
 
   var NOMS_FAMILLES = {
     texte: "Texte", nombre: "Nombre", date: "Date", choix: "Choix unique",
@@ -225,7 +227,7 @@
   /* ---------- Chargement ---------- */
 
   function configParDefaut() {
-    var elements = E.colonnes.filter(function (c) { return !c.isFormula; }).map(function (c) {
+    var elements = E.colonnes.filter(function (c) { return !c.isFormula && !estFichier(c); }).map(function (c) {
       return {
         id: M.nouvelId("q"), genre: "question", colonne: c.colId,
         libelle: c.label || c.colId, aide: c.description || "", obligatoire: false,
@@ -324,7 +326,7 @@
 
   function htmlStructure() {
     var utilisees = colonnesUtilisees();
-    var libres = E.colonnes.filter(function (c) { return !utilisees[c.colId] && !c.isFormula; });
+    var libres = E.colonnes.filter(function (c) { return !utilisees[c.colId] && !c.isFormula && !estFichier(c); });
     var html = "";
     E.config.etapes.forEach(function (etape, i) {
       var choisie = E.selection && E.selection.type === "etape" && E.selection.id === etape.id;

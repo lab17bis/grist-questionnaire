@@ -8,8 +8,8 @@ Les fichiers publiés ne sont jamais retirés : chaque version ajoute ou corrige
 - Envoi anonyme depuis une page d'un autre domaine : texte, choix multiples avec « Autre », date et heure, heure, lien, classement, tableau, courriel, y compris dans les colonnes ajoutées au formulaire après sa publication.
 - Écriture de la configuration depuis une page Grist en pleine page (`?style=light`).
 
-### Limite constatée
-- Le dépôt de fichiers par une personne anonyme est refusé par Grist (« Cannot access attachment »). Documenté dans le README ; aucun changement de code.
+### Modifié
+- Le dépôt de fichiers n'est plus proposé : Grist refuse l'enregistrement d'un fichier déposé par une personne anonyme (« Cannot access attachment »). L'éditeur ne propose plus le type « Fichiers joints » ni les colonnes fichier existantes, et signale une question fichier déjà présente dans une configuration. Pour récupérer un document, utiliser une question de type adresse web.
 
 ## 2026-11-26
 

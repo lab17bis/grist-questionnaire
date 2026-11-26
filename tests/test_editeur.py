@@ -16,7 +16,7 @@ with sync_playwright() as p:
     pg.on('pageerror', lambda e: erreurs.append(str(e)))
     pg.route('https://docs.getgrist.com/grist-plugin-api.js', lambda r: r.fulfill(status=200, content_type='application/javascript', body=mockjs))
     pg.route(re.compile(r'^https://cdn\.jsdelivr\.net/'), lambda r: r.abort())
-    mock = {'tables': {'T': {'colonnes': {'Nom': {'type': 'Text'}, 'Themes': {'type': 'ChoiceList', 'widgetOptions': json.dumps({'choices': ['A', 'B', 'C']})}}, 'lignes': []}},
+    mock = {'tables': {'T': {'colonnes': {'Nom': {'type': 'Text'}, 'Themes': {'type': 'ChoiceList', 'widgetOptions': json.dumps({'choices': ['A', 'B', 'C']})}, 'Piece': {'type': 'Attachments'}}, 'lignes': []}},
             'table': 'T', 'utilisateur': {'email': 'a@exemple.fr', 'nom': 'A'}}
     pg.add_init_script('window.MOCK = ' + json.dumps(mock) + ';')
     pg.goto(f'http://localhost:{os.environ.get("PORT", 8790)}/editeur.html')
@@ -69,6 +69,12 @@ with sync_playwright() as p:
     verifier('glisser-déposer : élément déplacé en tête', ordre[0] == avant[-1] and ordre[1:] == avant[:-1])
     pg.locator('#enregistrer').click(); pg.wait_for_timeout(500)
     verifier('glisser-déposer : ordre enregistré', [e['id'] for e in cfg()['etapes'][0]['elements']] == ordre)
+
+    # Fichiers : jamais proposés (Grist refuse le dépôt anonyme)
+    options = pg.evaluate(f'Array.from(document.querySelectorAll("#ajout-{etape} option")).map(o => o.value + "|" + o.textContent)')
+    verifier('fichiers : ni type « Fichiers joints » ni colonne fichier proposés', not any('Attachments' in o or 'Piece' in o or 'Fichiers' in o for o in options))
+    avert = pg.evaluate('QuestionnaireMoteur.verifierConfig({etapes:[{id:"e",elements:[{id:"q",genre:"question",colonne:"P",type:"Attachments",libelle:"Pièce"}]}]})')
+    verifier('fichiers : une question fichier existante est signalée', len(avert) == 1 and 'anonyme' in avert[0])
 
     # Aperçu : tout s'affiche
     pg.locator('.fr-segmented__element label', has_text='Aperçu').first.click()

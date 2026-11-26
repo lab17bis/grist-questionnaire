@@ -24,7 +24,7 @@ Usages possibles : inscription à un événement, demande d'accompagnement, appe
   - Une étape masquée est sautée, et les réponses aux questions masquées ne sont pas envoyées.
 - **Plusieurs étapes**, avec l'indicateur d'étapes du DSFR.
 - **Notes sur une échelle** réglable (de 1 à 5, de 0 à 10…), avec le sens des notes extrêmes, pour les enquêtes de satisfaction.
-- **Types de réponse** : texte court ou long, adresse électronique, téléphone, adresse web (lien), nombre, note sur une échelle, date, heure, date et heure, choix unique, choix multiples, oui / non, case d'accord, dépôt de fichiers, références vers une autre table.
+- **Types de réponse** : texte court ou long, adresse électronique, téléphone, adresse web (lien), nombre, note sur une échelle, date, heure, date et heure, choix unique, choix multiples, oui / non, case d'accord, références vers une autre table.
 - **Options de réponse** (toutes facultatives, réglées question par question) :
   - nombre minimal et maximal de choix pour les choix multiples ;
   - choix « Autre » avec champ de précision, enregistré dans une colonne dédiée ;
@@ -35,7 +35,7 @@ Usages possibles : inscription à un événement, demande d'accompagnement, appe
 - **Tableau de choix** (matrice) : une ligne par sujet, une colonne par réponse possible. Chaque ligne est enregistrée dans sa propre colonne de choix.
 - **Médias dans la page** : image (avec texte alternatif), son et vidéo (avec transcription), document PDF affiché dans la page ou proposé en téléchargement. Les adresses doivent commencer par `https://`.
 - **Éditeur** : éléments déplaçables à la souris ou avec les boutons, d'une étape à l'autre.
-- **Composants DSFR** : champs de saisie, boutons radio, cases à cocher, listes déroulantes, interrupteurs, dépôt de fichiers, encadrés, alertes.
+- **Composants DSFR** : champs de saisie, boutons radio, cases à cocher, listes déroulantes, interrupteurs, encadrés, alertes.
 - **Messages d'erreur DSFR**, avec un récapitulatif cliquable en haut de page.
 - **En-tête et pied de page** configurables : bloc-marque, logo, titre, sous-titre, boutons, liens et logos de pied de page, mention d'accessibilité.
 - **Message de confirmation** et **mentions sur les données personnelles** personnalisables.
@@ -107,7 +107,7 @@ Personne qui répond ──> page DSFR (ce dépôt, GitHub Pages)
 
 - Le questionnaire dépend du formulaire Grist publié : s'il est dépublié, le lien DSFR ne fonctionne plus.
 - Les médias viennent d'une adresse `https://`. Une pièce jointe Grist ne se lit publiquement que si le document est lisible par tout le monde ; sinon, hébergez le fichier ailleurs. Un site peut aussi interdire l'affichage d'un PDF dans une page : le lien de téléchargement reste proposé.
-- Le dépôt de fichiers par une personne anonyme est refusé par Grist (vérifié le 26 novembre 2026 sur grist.numerique.gouv.fr : le fichier est téléversé, mais l'enregistrement de la réponse renvoie « Cannot access attachment »). Les formulaires natifs de Grist ne proposent pas non plus de colonne fichier. À réserver à un questionnaire dont les personnes sont connectées à Grist, ou à éviter.
+- Pas de dépôt de fichiers : Grist refuse l'enregistrement d'un fichier déposé par une personne anonyme (vérifié le 26 novembre 2026 sur grist.numerique.gouv.fr : « Cannot access attachment »), et ses formulaires natifs n'ont pas de colonne fichier. L'éditeur ne propose donc pas ce type de question et signale une question fichier déjà présente. Pour récupérer un document, demandez son adresse (réponse de type lien).
 - Le minimum de choix ne s'applique qu'aux questions renseignées : pour exiger une réponse, cochez aussi « Réponse obligatoire ».
 - Renommer une ligne de tableau garde sa colonne ; la supprimer du questionnaire conserve la colonne et ses données dans Grist.
 - Pas encore de calculs, de score, de redirection selon les réponses, ni de pré-remplissage par l'adresse.

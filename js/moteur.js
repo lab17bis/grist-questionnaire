@@ -329,6 +329,9 @@
           if (el.type === "image" && !el.description) { problemes.push(nom + " : ajoutez un texte alternatif à l'image."); }
           if ((el.type === "audio" || el.type === "video") && !el.transcription) { problemes.push(nom + " : ajoutez une transcription."); }
         }
+        if (el.genre === "question" && famille(el.type) === "fichier") {
+          problemes.push(nom + " : Grist refuse les fichiers déposés par une personne anonyme, cette question ne peut pas fonctionner. Retirez-la.");
+        }
         if (el.genre === "question" && el.choixMin && el.choixMax && Number(el.choixMin) > Number(el.choixMax)) {
           problemes.push(nom + " : le minimum de choix dépasse le maximum.");
         }
