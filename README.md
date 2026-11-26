@@ -107,6 +107,7 @@ Personne qui répond ──> page DSFR (ce dépôt, GitHub Pages)
 
 - Le questionnaire dépend du formulaire Grist publié : s'il est dépublié, le lien DSFR ne fonctionne plus.
 - Les médias viennent d'une adresse `https://`. Une pièce jointe Grist ne se lit publiquement que si le document est lisible par tout le monde ; sinon, hébergez le fichier ailleurs. Un site peut aussi interdire l'affichage d'un PDF dans une page : le lien de téléchargement reste proposé.
+- Le dépôt de fichiers par une personne anonyme est refusé par Grist (vérifié le 26 novembre 2026 sur grist.numerique.gouv.fr : le fichier est téléversé, mais l'enregistrement de la réponse renvoie « Cannot access attachment »). Les formulaires natifs de Grist ne proposent pas non plus de colonne fichier. À réserver à un questionnaire dont les personnes sont connectées à Grist, ou à éviter.
 - Le minimum de choix ne s'applique qu'aux questions renseignées : pour exiger une réponse, cochez aussi « Réponse obligatoire ».
 - Renommer une ligne de tableau garde sa colonne ; la supprimer du questionnaire conserve la colonne et ses données dans Grist.
 - Pas encore de calculs, de score, de redirection selon les réponses, ni de pré-remplissage par l'adresse.

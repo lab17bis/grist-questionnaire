@@ -2,6 +2,15 @@
 
 Les fichiers publiés ne sont jamais retirés : chaque version ajoute ou corrige, sans casser l'existant.
 
+## 2026-11-26 (vérifications)
+
+### Vérifié
+- Envoi anonyme depuis une page d'un autre domaine : texte, choix multiples avec « Autre », date et heure, heure, lien, classement, tableau, courriel, y compris dans les colonnes ajoutées au formulaire après sa publication.
+- Écriture de la configuration depuis une page Grist en pleine page (`?style=light`).
+
+### Limite constatée
+- Le dépôt de fichiers par une personne anonyme est refusé par Grist (« Cannot access attachment »). Documenté dans le README ; aucun changement de code.
+
 ## 2026-11-26
 
 ### Ajouté
