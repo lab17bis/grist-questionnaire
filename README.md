@@ -59,8 +59,8 @@ Le modèle [`modele/modele-grist-questionnaire.grist`](modele/modele-grist-quest
 
 | Onglet de l'éditeur | Ce qu'on y règle |
 | --- | --- |
-| Questions | Étapes, questions (à partir des colonnes existantes ou de nouvelles colonnes), blocs de texte, tableaux de choix, médias, options de réponse, conditions d'affichage, déplacement par glisser-déposer |
-| Textes | Titre, introduction, bouton d'envoi, message de confirmation, mentions sur les données |
+| Réglages › Questions | Étapes, questions (à partir des colonnes existantes ou de nouvelles colonnes), blocs de texte, tableaux de choix, médias, options de réponse, conditions d'affichage, déplacement par glisser-déposer |
+| Réglages › Textes | Titre, introduction, bouton d'envoi, message de confirmation, mentions sur les données |
 | En-tête et pied | Logo, bloc-marque, titre, sous-titre, boutons, pied de page, mention d'accessibilité |
 | Aperçu | Le questionnaire tel qu'il s'affichera, conditions comprises |
 | Publication | Connexion au formulaire publié, lien à diffuser, code d'intégration, export et import |

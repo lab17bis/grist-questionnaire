@@ -25,6 +25,16 @@
     refValues: {}          // colId -> [[id, libellé]]
   };
 
+  // Barre commune de l'éditeur (commun/barre.js) : Réglages, En-tête et pied, Aperçu, Publication.
+  var BL = window.BarreLab, PAGE_USAGE = false;
+  var BARRE = BL ? BL.creer(document.body, {
+    nom: "Widget questionnaire", idEtat: "etat", idEnregistrer: "enregistrer", actif: E.vue,
+    onglets: [{ id: "reglages", libelle: "Réglages", sous: [{ id: "questions", libelle: "Questions" }, { id: "textes", libelle: "Textes" }] },
+      { id: "page", libelle: "En-tête et pied" }, { id: "apercu", libelle: "Aperçu" }, { id: "publication", libelle: "Publication" }],
+    surChoix: function (i) { E.vue = i; afficher(); }
+  }) : null;
+  function blocMode() { /* pas de page d'usage ici : la page des personnes est le formulaire public */ }
+
   var TYPES_NOUVELLE_QUESTION = [
     ["Text|court", "Texte court"],
     ["Text|long", "Texte long"],
@@ -1366,6 +1376,8 @@
   /* ---------- Affichage général ---------- */
 
   function afficher() {
+    if (PAGE_USAGE) { E.vue = "apercu"; }
+    if (BARRE) { BARRE.choisir(E.vue); }
     if (!E.config) { return; }
     if (E.vue === "questions") { afficherQuestions(); }
     else if (E.vue === "textes") { afficherTextes(); }
