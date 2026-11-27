@@ -2,6 +2,10 @@
 
 Les fichiers publiés ne sont jamais retirés : chaque version ajoute ou corrige, sans casser l'existant.
 
+## 2026-11-27 (barre commune de l'éditeur)
+- Barre commune à tous les widgets (fichier partagé `commun/barre.js` et `commun/barre.css`) : nom du widget et statut à gauche, onglets Réglages, En-tête et pied, Aperçu, Publication au centre, Enregistrer à droite ; barre collante en haut de l'écran.
+- Les rubriques propres à l'éditeur deviennent des sous-onglets de Réglages.
+
 ## 2026-11-27 (publication réservée)
 
 ### Ajouté
