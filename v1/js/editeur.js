@@ -29,7 +29,7 @@
   var BL = window.BarreLab, PAGE_USAGE = false;
   var BARRE = BL ? BL.creer(document.body, {
     nom: "Widget questionnaire", idEtat: "etat", idEnregistrer: "enregistrer", actif: E.vue,
-    onglets: [{ id: "reglages", libelle: "Réglages", sous: [{ id: "questions", libelle: "Questions" }, { id: "textes", libelle: "Textes" }] },
+    onglets: [{ id: "reglages", libelle: "Réglages", sous: [{ id: "questions", libelle: "Questions" }, { id: "textes", libelle: "Textes" }, { id: "json", libelle: "Export et import" }] },
       { id: "page", libelle: "En-tête et pied" }, { id: "apercu", libelle: "Aperçu" }, { id: "publication", libelle: "Publication" }],
     surChoix: function (i) { E.vue = i; afficher(); }
   }) : null;
@@ -795,7 +795,13 @@
       html += "<p class=\"fr-text--sm\">Le lien apparaîtra ici une fois le formulaire connecté.</p>";
     }
     html += "<div class=\"fr-callout fr-mt-3w\"><h3 class=\"fr-callout__title\">Public ou réservé ?</h3><p class=\"fr-callout__text fr-text--sm\">Le lien ci-dessus est public : toute personne qui l'a peut répondre, sans compte. Pour un questionnaire interne, ne le diffusez pas : invitez les personnes dans le document Grist (<strong>Partager</strong>, rôle Éditeur) et envoyez-leur l'adresse de la page Grist qui contient le formulaire.</p></div>";
-    html += "<h2 class=\"fr-h5 ed-section-titre\">Sauvegarde de la configuration</h2>" +
+    html += "</div>";
+    $("#vue").innerHTML = html;
+  }
+
+  function afficherJson() {
+    var html = "<div class=\"ed-panneau ed-textes\">";
+    html += "<h2 class=\"fr-h5\">Export et import de la configuration</h2>" +
       "<p class=\"fr-text--sm\">Copiez ce texte pour réutiliser la structure dans un autre document. Il ne contient aucune réponse.</p>" +
       "<div class=\"fr-input-group\"><label class=\"fr-label\" for=\"config-json\">Configuration (JSON)</label>" +
       "<textarea class=\"fr-input ed-code\" rows=\"6\" id=\"config-json\">" + esc(JSON.stringify(E.config, null, 2)) + "</textarea></div>" +
@@ -1381,6 +1387,7 @@
     if (!E.config) { return; }
     if (E.vue === "questions") { afficherQuestions(); }
     else if (E.vue === "textes") { afficherTextes(); }
+    else if (E.vue === "json") { afficherJson(); }
     else if (E.vue === "page") { afficherPage(); }
     else if (E.vue === "apercu") { afficherApercu(); }
     else { afficherPublication(); }

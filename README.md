@@ -61,9 +61,10 @@ Le modèle [`modele/modele-grist-questionnaire.grist`](modele/modele-grist-quest
 | --- | --- |
 | Réglages › Questions | Étapes, questions (à partir des colonnes existantes ou de nouvelles colonnes), blocs de texte, tableaux de choix, médias, options de réponse, conditions d'affichage, déplacement par glisser-déposer |
 | Réglages › Textes | Titre, introduction, bouton d'envoi, message de confirmation, mentions sur les données |
+| Réglages › Export et import | Configuration en JSON, à copier ou à reprendre dans un autre document (aucune réponse) |
 | En-tête et pied | Logo, bloc-marque, titre, sous-titre, boutons, pied de page, mention d'accessibilité |
 | Aperçu | Le questionnaire tel qu'il s'affichera, conditions comprises |
-| Publication | Connexion au formulaire publié, lien à diffuser, code d'intégration, export et import |
+| Publication | Connexion au formulaire publié, lien à diffuser, code d'intégration |
 
 Les réglages sont enregistrés en JSON dans la **description de la colonne `Config_questionnaire`** de la table. Ne supprimez pas cette colonne.
 
@@ -71,7 +72,7 @@ Les réglages sont enregistrés en JSON dans la **description de la colonne `Con
 
 - **L'utiliser tel quel** : pointez vos documents Grist vers les adresses ci-dessus. Aucune installation n'est nécessaire.
 - **L'héberger chez vous** : copiez le dépôt (*Fork*), activez GitHub Pages ou déposez les fichiers sur n'importe quel serveur web statique. Aucune compilation n'est nécessaire.
-- **Réutiliser un questionnaire** : exportez ses réglages en JSON, puis importez-les dans un autre document. `exemples/inscription-atelier.json` en donne un exemple.
+- **Réutiliser un questionnaire** : exportez ses réglages en JSON (*Réglages*, sous-onglet *Export et import*), puis importez-les dans un autre document. `exemples/inscription-atelier.json` en donne un exemple.
 - **Modifier le code** :
 
 | Fichier | Rôle |
