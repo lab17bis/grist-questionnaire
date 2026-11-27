@@ -784,6 +784,7 @@
     } else {
       html += "<p class=\"fr-text--sm\">Le lien apparaîtra ici une fois le formulaire connecté.</p>";
     }
+    html += "<div class=\"fr-callout fr-mt-3w\"><h3 class=\"fr-callout__title\">Public ou réservé ?</h3><p class=\"fr-callout__text fr-text--sm\">Le lien ci-dessus est public : toute personne qui l'a peut répondre, sans compte. Pour un questionnaire interne, ne le diffusez pas : invitez les personnes dans le document Grist (<strong>Partager</strong>, rôle Éditeur) et envoyez-leur l'adresse de la page Grist qui contient le formulaire.</p></div>";
     html += "<h2 class=\"fr-h5 ed-section-titre\">Sauvegarde de la configuration</h2>" +
       "<p class=\"fr-text--sm\">Copiez ce texte pour réutiliser la structure dans un autre document. Il ne contient aucune réponse.</p>" +
       "<div class=\"fr-input-group\"><label class=\"fr-label\" for=\"config-json\">Configuration (JSON)</label>" +
