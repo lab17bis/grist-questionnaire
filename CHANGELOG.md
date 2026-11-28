@@ -2,6 +2,10 @@
 
 Les fichiers publiés ne sont jamais retirés : chaque version ajoute ou corrige, sans casser l'existant.
 
+## 2026-11-28 (références préremplies, connexion)
+- Préremplissage par l'adresse étendu aux questions à référence (liste déroulante ou boutons) : `?pre_<Colonne>=` accepte l'identifiant de la ligne ou son libellé affiché (par exemple `?pre_Consultation=4` dans le lien de vote de grist-consultation).
+- Publication : un lien refusé par Grist (erreur 404) n'est plus gardé comme lien à diffuser ; le message indique de copier le lien donné par le bouton « Partager » de la page du formulaire publié.
+
 ## 2026-11-28 (préremplissage par l'adresse)
 - Une question peut être préremplie par l'adresse : `?pre_<Colonne>=valeur` (lu aussi après `#`). Utilisé par les liens de vote personnels de grist-consultation (`?pre_Code=…`). La valeur reste modifiable.
 - Nouveau test `tests/test_preremplissage.py`.

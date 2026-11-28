@@ -843,6 +843,7 @@
       }
       lignes.push("Formulaire publié.");
 
+      var publicationAvant = E.config.publication;
       E.config.publication = { lienGrist: lien };
       await enregistrer(true);
 
@@ -870,7 +871,11 @@
       // Test réel, comme le ferait un visiteur anonyme.
       var reponse = await fetch(cible.base + "/forms/" + cible.section);
       if (!reponse.ok) {
-        lignes.push("Le formulaire n'est pas lisible publiquement (erreur " + reponse.status + ").");
+        // Lien refusé : on ne garde pas un lien à diffuser qui ne marche pas.
+        E.config.publication = publicationAvant;
+        await enregistrer(true);
+        lignes.push("Le formulaire n'est pas lisible publiquement (erreur " + reponse.status + "). " +
+          "Copiez le lien donné par le bouton « Partager » de la page du formulaire Grist publié.");
         return rendre("error");
       }
       var form = await reponse.json();

@@ -507,6 +507,10 @@
             refValues.map(function (r) { return h("option", { value: String(r[0]), text: String(r[1]) }); })));
       if (obligatoire) { select.setAttribute("aria-required", "true"); }
       if (fam === "choix" && el.defaut) { select.value = String(el.defaut); if (select.value !== String(el.defaut)) { select.value = ""; } }
+      // Référence : la valeur par défaut (ou préremplie) est l'identifiant de la ligne ou son libellé affiché.
+      if (fam === "ref" && el.defaut) {
+        Array.prototype.forEach.call(select.options, function (o) { if (o.value && (o.value === String(el.defaut) || o.text === String(el.defaut))) { select.value = o.value; } });
+      }
       noeud = groupeSimple("fr-select-group", select);
       if (avecAutre) { brancherAutre(zoneAutre(function () { return select.value === LIB_AUTRE; }), noeud, select); }
       q.lire = function () {
@@ -528,6 +532,12 @@
       noeud = fieldset(items, false);
       if (fam === "choix" && el.defaut) {
         Array.prototype.forEach.call(noeud.querySelectorAll("input"), function (i) { if (i.value === String(el.defaut)) { i.checked = true; } });
+      }
+      if (fam === "ref" && el.defaut) {
+        Array.prototype.forEach.call(noeud.querySelectorAll("input"), function (i) {
+          var lab = noeud.querySelector("label[for=\"" + i.id + "\"]");
+          if (i.value === String(el.defaut) || (lab && lab.textContent === String(el.defaut))) { i.checked = true; }
+        });
       }
       if (avecAutre) {
         brancherAutre(zoneAutre(function () { var c = noeud.querySelector("input:checked"); return !!c && c.value === LIB_AUTRE; }), noeud, noeud);

@@ -32,6 +32,22 @@ with sync_playwright() as p:
     pg.goto(base)
     pg.evaluate('([c, ch]) => monterTest(c, ch)', [config, champs])
     verifier('sans paramètre : rien de prérempli', pg.get_by_label('Votre code').input_value() == '')
+    # Références (liste ou boutons) : préremplies par l'identifiant de la ligne ou par son libellé.
+    cref = {'titre': 'Vote', 'etapes': [{'id': 'e1', 'titre': 'E', 'elements': [
+        q('k', colonne='Consultation', libelle='Consultation', type='Ref:Consultations', affichage='liste'),
+        q('p', colonne='Proposition', libelle='Proposition', type='Ref:Propositions', affichage='radio')]}]}
+    chref = {'Consultation': {'type': 'Ref:Consultations', 'refValues': [[1, 'Budget'], [4, 'Outils']]},
+             'Proposition': {'type': 'Ref:Propositions', 'refValues': [[18, 'Outil A'], [19, 'Outil B']]}}
+    pg.goto(base + '?pre_Consultation=4&pre_Proposition=Outil%20B')
+    pg.evaluate('([c, ch]) => monterTest(c, ch)', [cref, chref])
+    verifier('référence en liste préremplie par son identifiant', pg.get_by_label('Consultation').input_value() == '4')
+    verifier('référence en boutons préremplie par son libellé', pg.get_by_label('Outil B').is_checked())
+    pg.get_by_role('button', name='Envoyer').click(); pg.wait_for_timeout(300)
+    env = pg.evaluate('window.ENVOYES')
+    verifier('références préremplies envoyées comme identifiants', env and env[-1].get('Consultation') == 4 and env[-1].get('Proposition') == 19)
+    pg.goto(base + '?pre_Consultation=99')
+    pg.evaluate('([c, ch]) => monterTest(c, ch)', [cref, chref])
+    verifier('référence inconnue : rien de prérempli', pg.get_by_label('Consultation').input_value() == '')
     verifier('aucune erreur JavaScript', not erreurs)
     if erreurs: print(erreurs)
     b.close()
