@@ -29,6 +29,7 @@ Usages possibles : inscription à un événement, demande d'accompagnement, appe
   - nombre minimal et maximal de choix pour les choix multiples ;
   - choix « Autre » avec champ de précision, enregistré dans une colonne dédiée ;
   - réponse par défaut ;
+  - réponse préremplie par l'adresse : `?pre_<Colonne>=valeur` remplit la question liée à cette colonne (par exemple `?pre_Code=K7P2QX`, utilisé par les liens de vote personnels de grist-consultation). La personne peut encore la modifier. Le paramètre est lu aussi après un `#`.
   - ordre aléatoire des choix, pour ne pas favoriser le premier ;
   - libellés des notes extrêmes et du milieu sur une échelle.
 - **Classement par ordre** : la personne range les éléments avec la souris (glisser-déposer) ou avec les boutons Monter et Descendre. La réponse tient dans une seule cellule, une liste de choix ordonnée.

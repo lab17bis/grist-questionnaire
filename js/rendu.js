@@ -298,7 +298,23 @@
 
   /* ---------- Construction d'une question ---------- */
 
+  // Préremplissage par l'adresse : ?pre_<Colonne>=valeur remplit la question liée à cette colonne Grist
+  // (par exemple ?pre_Code=K7P2QX pour un lien de vote personnel). La personne peut encore modifier la valeur.
+  function valeurPreremplie(colonne) {
+    if (!colonne) { return null; }
+    try {
+      var params = new URLSearchParams(location.search);
+      var h = location.hash.indexOf("?") >= 0 ? location.hash.slice(location.hash.indexOf("?") + 1) : "";
+      var ph = new URLSearchParams(h);
+      var v = params.get("pre_" + colonne);
+      if (v === null) { v = ph.get("pre_" + colonne); }
+      return v === null ? null : String(v).slice(0, 500);
+    } catch (e) { return null; }
+  }
+
   function construireQuestion(el, champ, options, compteur) {
+    var pre = valeurPreremplie(el.colonne);
+    if (pre !== null) { el = Object.assign({}, el, { defaut: pre }); }
     var fam = M.famille(champ.type);
     var id = "q-" + el.id;
     var affichage = el.affichage || M.affichageParDefaut(fam, champ.type);

@@ -2,6 +2,10 @@
 
 Les fichiers publiés ne sont jamais retirés : chaque version ajoute ou corrige, sans casser l'existant.
 
+## 2026-11-28 (préremplissage par l'adresse)
+- Une question peut être préremplie par l'adresse : `?pre_<Colonne>=valeur` (lu aussi après `#`). Utilisé par les liens de vote personnels de grist-consultation (`?pre_Code=…`). La valeur reste modifiable.
+- Nouveau test `tests/test_preremplissage.py`.
+
 ## 2026-11-27 (accès au document)
 - Barre de l'éditeur : le nom du widget et son statut restent sur une ligne ; la barre ne change plus de hauteur quand le statut passe à « non enregistré ».
 - Dans Grist, quand le widget ne peut pas lire le document (accès complet non accordé, ou compte sans droit de lecture), un message le dit et indique quoi faire, au lieu d'un outil vide ou d'un écran d'installation. Contrôle commun, dans `commun/barre.js`.
