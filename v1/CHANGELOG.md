@@ -2,6 +2,10 @@
 
 Les fichiers publiés ne sont jamais retirés : chaque version ajoute ou corrige, sans casser l'existant.
 
+## 2026-11-28 (période de réponse, réponses préremplies figées)
+- **Période de réponse** (onglet *Textes*) : dates d'ouverture et de clôture, message après la clôture. En dehors de la période, la page affiche un message au lieu du formulaire ; une réponse envoyée après la clôture (page restée ouverte) est refusée. Contrôle fait dans le navigateur.
+- Réglage par question « Si la réponse est préremplie par l'adresse » : modifiable (par défaut), affichée sans modification, ou masquée. Sans effet si la valeur n'est pas reconnue.
+
 ## 2026-11-28 (références préremplies, connexion)
 - Préremplissage par l'adresse étendu aux questions à référence (liste déroulante ou boutons) : `?pre_<Colonne>=` accepte l'identifiant de la ligne ou son libellé affiché (par exemple `?pre_Consultation=4` dans le lien de vote de grist-consultation).
 - Publication : un lien refusé par Grist (erreur 404) n'est plus gardé comme lien à diffuser ; le message indique de copier le lien donné par le bouton « Partager » de la page du formulaire publié.

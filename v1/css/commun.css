@@ -169,3 +169,7 @@
 .qd-transcription {
   margin-top: 0.75rem;
 }
+
+/* Réponse préremplie par l'adresse, masquée par réglage */
+.qd-prerempli-masque { display: none !important; }
+.qd-prerempli-note { margin-top: .25rem; }

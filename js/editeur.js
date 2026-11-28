@@ -576,6 +576,9 @@
       html += champTexte("aide", "Texte d'aide", obj.aide || "", { aide: "Facultatif. S'affiche sous l'intitulé." });
       html += champCase("obligatoire", "Réponse obligatoire", !!obj.obligatoire,
         fam === "booleen" && obj.affichage !== "ouinon" ? "La case devra être cochée." : "S'applique seulement si la question est affichée.");
+      html += champSelect("prerempli", "Si la réponse est préremplie par l'adresse", obj.prerempli || "modifiable", [
+        ["modifiable", "Modifiable par la personne"], ["fige", "Affichée, non modifiable"], ["masquee", "Masquée (la valeur est quand même envoyée)"]],
+        "Lien de la forme ?pre_" + (obj.colonne || "Colonne") + "=valeur. Si la valeur n'est pas reconnue, la question reste ordinaire.");
       var affichages = M.AFFICHAGES[fam] || [];
       if (affichages.length > 1) {
         html += champSelect("affichage", "Présentation", obj.affichage || M.affichageParDefaut(fam, type), affichages);
@@ -679,6 +682,12 @@
     html += champTexte("c.envoi.titreConfirmation", "Titre du message de confirmation", c.envoi.titreConfirmation || "");
     html += champTexte("c.envoi.messageConfirmation", "Message de confirmation", c.envoi.messageConfirmation || "", { multiligne: true });
     html += champCase("c.envoi.autreReponse", "Proposer d'envoyer une autre réponse", !!c.envoi.autreReponse);
+    c.ouverture = c.ouverture || {};
+    html += "<h2 class=\"fr-h5 ed-section-titre\">Période de réponse</h2>";
+    html += "<p class=\"fr-text--sm\">Facultatif. Avant l'ouverture ou après la clôture, la page n'affiche qu'un message et n'envoie rien. Ce contrôle se fait dans le navigateur : il guide les personnes, il n'empêche pas un envoi fabriqué à la main. Pour une limite stricte, dépubliez le formulaire Grist à la clôture (ou utilisez un outil qui contrôle les dates dans Grist, comme grist-consultation).</p>";
+    html += champTexte("c.ouverture.debut", "Réponses acceptées à partir du (facultatif)", c.ouverture.debut || "", { type: "datetime-local" });
+    html += champTexte("c.ouverture.fin", "Réponses acceptées jusqu'au (facultatif)", c.ouverture.fin || "", { type: "datetime-local", aide: "Date et heure de clôture, heure de l'appareil de la personne qui répond." });
+    html += champTexte("c.ouverture.messageApres", "Message après la clôture (facultatif)", c.ouverture.messageApres || "", { multiligne: true, lignes: 2, aide: "Par défaut : « Les réponses étaient acceptées jusqu'au … »." });
     html += "<h2 class=\"fr-h5 ed-section-titre\">Données personnelles</h2>";
     html += champTexte("c.mentionsDonnees", "Mentions sur le traitement des données", c.mentionsDonnees || "", {
       multiligne: true, lignes: 5,

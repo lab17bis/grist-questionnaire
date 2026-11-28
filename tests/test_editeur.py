@@ -76,6 +76,16 @@ with sync_playwright() as p:
     avert = pg.evaluate('QuestionnaireMoteur.verifierConfig({etapes:[{id:"e",elements:[{id:"q",genre:"question",colonne:"P",type:"Attachments",libelle:"Pièce"}]}]})')
     verifier('fichiers : une question fichier existante est signalée', len(avert) == 1 and 'anonyme' in avert[0])
 
+    # Réglage « réponse préremplie » d'une question, et période de réponse (onglet Textes)
+    qid = [e['id'] for e in cfg()['etapes'][0]['elements'] if e.get('genre') == 'question'][0]
+    pg.locator(f'li.ed-item[data-id="{qid}"] .ed-choisir').click()
+    pg.locator('#p-prerempli').select_option('fige')
+    pg.locator('label', has_text='Textes').first.click()
+    pg.locator('#p-c-ouverture-fin').fill('2026-12-20T18:00')
+    pg.locator('#enregistrer').click(); pg.wait_for_timeout(500)
+    c2 = cfg()
+    verifier('réglages : réponse préremplie figée et date de clôture enregistrées',
+             c2.get('ouverture', {}).get('fin') == '2026-12-20T18:00' and any(e.get('prerempli') == 'fige' for e in c2['etapes'][0]['elements']))
     # Aperçu : tout s'affiche
     pg.locator('.fr-segmented__element label', has_text='Aperçu').first.click()
     pg.wait_for_selector('.qd-questionnaire')

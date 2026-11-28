@@ -48,6 +48,40 @@ with sync_playwright() as p:
     pg.goto(base + '?pre_Consultation=99')
     pg.evaluate('([c, ch]) => monterTest(c, ch)', [cref, chref])
     verifier('référence inconnue : rien de prérempli', pg.get_by_label('Consultation').input_value() == '')
+    # Réponse préremplie figée ou masquée (réglage de la question)
+    cfig = {'titre': 'Vote', 'etapes': [{'id': 'e1', 'titre': 'E', 'elements': [
+        q('k', colonne='Consultation', libelle='Consultation', type='Ref:Consultations', affichage='liste', prerempli='masquee', obligatoire=True),
+        q('p', colonne='Proposition', libelle='Proposition', type='Ref:Propositions', affichage='radio', prerempli='fige', obligatoire=True),
+        q('c', colonne='Code', libelle='Votre code', type='Text', prerempli='fige')]}]}
+    pg.goto(base + '?pre_Consultation=4&pre_Proposition=19&pre_Code=K7P2QX')
+    pg.evaluate('([c, ch]) => monterTest(c, ch)', [cfig, chref])
+    verifier('préremplie masquée : question cachée', not pg.locator('[data-element=k]').is_visible())
+    verifier('préremplie figée : visible, non modifiable, avec mention', pg.get_by_label('Outil B').is_disabled() and pg.get_by_label('Votre code').is_disabled() and 'fixée par le lien' in pg.locator('body').inner_text())
+    pg.get_by_role('button', name='Envoyer').click(); pg.wait_for_timeout(300)
+    env = pg.evaluate('window.ENVOYES')
+    verifier('figée et masquée : valeurs envoyées', env and env[-1].get('Consultation') == 4 and env[-1].get('Proposition') == 19 and env[-1].get('Code') == 'K7P2QX')
+    pg.goto(base + '?pre_Consultation=99')
+    pg.evaluate('([c, ch]) => monterTest(c, ch)', [cfig, chref])
+    verifier('masquée mais valeur inconnue : la question reste visible', pg.locator('[data-element=k]').is_visible())
+    # Période de réponse
+    cper = {'titre': 'Sondage', 'etapes': config['etapes'], 'ouverture': {'fin': '2020-01-01T12:00'}}
+    pg.goto(base); pg.evaluate('([c, ch]) => monterTest(c, ch)', [cper, champs])
+    t = pg.locator('body').inner_text()
+    verifier('après la clôture : message, pas de formulaire', 'Ce questionnaire est clos' in t and "1 janvier 2020 à 12 h 00" in t and pg.locator('form').count() == 0)
+    cper['ouverture'] = {'debut': '2999-01-01T09:00'}
+    pg.evaluate('([c, ch]) => monterTest(c, ch)', [cper, champs])
+    verifier('avant l\'ouverture : message, pas de formulaire', "pas encore ouvert" in pg.locator('body').inner_text() and pg.locator('form').count() == 0)
+    cper['ouverture'] = {'debut': '2020-01-01T09:00', 'fin': '2999-01-01', 'messageApres': 'Fini.'}
+    pg.evaluate('([c, ch]) => monterTest(c, ch)', [cper, champs])
+    verifier('pendant la période : formulaire affiché', pg.locator('form').count() == 1)
+    proche = pg.evaluate("() => { const d = new Date(Date.now() + 60000); const z = n => String(n).padStart(2, '0'); return d.getFullYear() + '-' + z(d.getMonth() + 1) + '-' + z(d.getDate()) + 'T' + z(d.getHours()) + ':' + z(d.getMinutes()); }")
+    cper['ouverture'] = {'fin': proche}
+    pg.evaluate('([c, ch]) => monterTest(c, ch)', [cper, champs])
+    pg.get_by_label('Votre code').fill('ABC')
+    pg.evaluate("() => { const r = Date.now; Date.now = () => r() + 180000; const D = Date; window.Date = class extends D { constructor(...a) { if (!a.length) { super(D.now() + 180000); } else { super(...a); } } }; }")
+    pg.get_by_role('button', name='Envoyer').click(); pg.wait_for_timeout(300)
+    verifier('clôture en cours de saisie : rien n\'est envoyé, message affiché', not pg.evaluate('window.ENVOYES').__len__() and "n'a pas été envoyée" in pg.locator('body').inner_text())
+    verifier('clôture en cours de saisie : rien n\'est envoyé', pg.evaluate("""() => { const p = QuestionnaireRendu.periodeReponse({fin: '2020-01-01'}, new Date()); return !!p && p.titre === 'Ce questionnaire est clos'; }"""))
     verifier('aucune erreur JavaScript', not erreurs)
     if erreurs: print(erreurs)
     b.close()

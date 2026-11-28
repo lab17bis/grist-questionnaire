@@ -661,6 +661,21 @@
 
     if (!q.lirePourCondition) { q.lirePourCondition = q.lire; }
     q.noeud = h("div", { class: "qd-element", "data-element": el.id }, [noeud]);
+    // Réponse préremplie par l'adresse : modifiable (par défaut), affichée sans modification, ou masquée.
+    // Seulement si la valeur a bien été reconnue : sinon la question reste ordinaire.
+    if (pre !== null && (el.prerempli === "fige" || el.prerempli === "masquee")) {
+      var lue = q.lire();
+      if (lue !== null && lue !== "" && !(Array.isArray(lue) && !lue.length)) {
+        if (el.prerempli === "masquee") {
+          q.noeud.classList.add("qd-prerempli-masque");
+        } else {
+          Array.prototype.forEach.call(q.noeud.querySelectorAll("input, select, textarea"), function (c) { c.disabled = true; });
+          q.noeud.classList.add("qd-prerempli-fige");
+          var groupe = q.noeud.querySelector(".fr-messages-group");
+          if (groupe && groupe.parentNode) { groupe.parentNode.insertBefore(h("p", { class: "fr-hint-text qd-prerempli-note", text: "Réponse fixée par le lien que vous avez reçu." }), groupe); }
+        }
+      }
+    }
     return q;
   }
 
@@ -729,6 +744,27 @@
 
   /* ---------- Montage ---------- */
 
+  // Date locale saisie dans l'éditeur (« 2026-12-20T18:00 ») ; vide ou illisible : pas de limite.
+  function lireDateLocale(v) {
+    var m = String(v || "").match(/^(\d{4})-(\d{2})-(\d{2})(?:T(\d{2}):(\d{2}))?/);
+    return m ? new Date(+m[1], +m[2] - 1, +m[3], m[4] ? +m[4] : 23, m[5] ? +m[5] : 59) : null;
+  }
+  function dateLisible(d) {
+    var j = d.toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" });
+    return j + " à " + String(d.getHours()).padStart(2, "0") + " h " + String(d.getMinutes()).padStart(2, "0");
+  }
+  function periodeReponse(o, maintenant) {
+    if (!o) { return null; }
+    var debut = lireDateLocale(o.debut), fin = lireDateLocale(o.fin);
+    if (debut && maintenant < debut) {
+      return { titre: "Ce questionnaire n'est pas encore ouvert", texte: o.messageAvant || ("Les réponses seront acceptées à partir du " + dateLisible(debut) + ".") };
+    }
+    if (fin && maintenant > fin) {
+      return { titre: "Ce questionnaire est clos", texte: o.messageApres || ("Les réponses étaient acceptées jusqu'au " + dateLisible(fin) + ".") };
+    }
+    return null;
+  }
+
   function monter(conteneur, options) {
     var config = options.config || {};
     var champs = options.champs || {};
@@ -740,6 +776,18 @@
 
     conteneur.innerHTML = "";
     conteneur.classList.add("qd-questionnaire");
+
+    // Période de réponse (facultative) : avant l'ouverture ou après la clôture, le formulaire n'est pas affiché.
+    // Contrôle fait dans le navigateur : il guide les personnes, il n'empêche pas un envoi fabriqué à la main.
+    var periode = periodeReponse(config.ouverture, new Date());
+    if (periode && !options.apercu) {
+      conteneur.appendChild(h("h1", { class: "qd-titre", text: config.titre || "Questionnaire" }));
+      conteneur.appendChild(h("div", { class: "fr-alert fr-alert--info qd-ferme", role: "status" }, [
+        h("h2", { class: "fr-alert__title", text: periode.titre }),
+        h("p", { text: periode.texte })
+      ]));
+      return { rafraichir: function () {}, allerA: function () {}, ferme: true };
+    }
 
     var titre = h("h1", { class: "qd-titre", text: config.titre || "Questionnaire" });
     var intro = config.introduction ? h("div", { class: "fr-text--lead qd-intro", html: formater(config.introduction) }) : null;
@@ -1007,6 +1055,13 @@
         return;
       }
       if (piegeRempli) { afficherSucces(); return; }
+      var fermeEntreTemps = periodeReponse(config.ouverture, new Date());
+      if (fermeEntreTemps && !options.apercu) {
+        zoneAlerte.innerHTML = "";
+        zoneAlerte.appendChild(h("div", { class: "fr-alert fr-alert--error", role: "alert" }, [h("h2", { class: "fr-alert__title", text: fermeEntreTemps.titre }), h("p", { text: "Votre réponse n'a pas été envoyée. " + fermeEntreTemps.texte })]));
+        zoneAlerte.focus();
+        return;
+      }
       envoiEnCours = true;
       boutonSuivant.disabled = true;
       boutonSuivant.textContent = "Envoi en cours…";
@@ -1071,6 +1126,7 @@
 
   global.QuestionnaireRendu = {
     monter: monter,
+    periodeReponse: periodeReponse,
     formater: formater,
     echapper: echapper,
     h: h
